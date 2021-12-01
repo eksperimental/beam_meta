@@ -26,7 +26,7 @@ defmodule ElixirMeta.MixProject do
       # {:jason, "~> 1.2"}
       {:elixir_meta_data, git: "https://github.com/eksperimental/elixir_meta_data.git", branch: "main"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.26", only: :dev, runtime: false},
     ]
   end
