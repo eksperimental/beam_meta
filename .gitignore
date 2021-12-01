@@ -24,3 +24,6 @@ elixir_meta-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Other files
+.tool-versions
