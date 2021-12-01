@@ -5,10 +5,10 @@ defmodule ElixirMeta.Release do
   This module does not deal with releases prior to version `1.0.0`.
   """
 
-  @type elixir_version_key :: String.t()
-  @type otp_version_key :: non_neg_integer
+  use ElixirMeta.BackPort
+
   @type release_data :: %{
-          elixir_version_key => %{
+          ElixirMeta.elixir_version_key => %{
             assets:
               nonempty_list(%{
                 id: non_neg_integer(),
@@ -40,7 +40,7 @@ defmodule ElixirMeta.Release do
             when is_struct(term, Version.Requirement) or is_binary(term)
 
   # This is the minimum requirement. We do not retrieve anything prior 1.0.0
-  version_requirement = Version.compile_requirement(">= 1.0.0")
+  version_requirement = Version.parse_requirement!(">= 1.0.0")
 
   filter_asset = fn asset when is_map(asset) ->
     {:ok, updated_at, 0} = DateTime.from_iso8601(asset["updated_at"])

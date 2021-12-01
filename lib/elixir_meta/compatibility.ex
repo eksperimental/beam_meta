@@ -5,6 +5,8 @@ defmodule ElixirMeta.Compatibility do
   Main documentation page: [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
   """
 
+  use ElixirMeta.BackPort
+
   import ElixirMeta.Compatibility.Util, only: [to_elixir_version_requirement: 1]
   import ElixirMeta.Util, only: [to_version: 1]
 
