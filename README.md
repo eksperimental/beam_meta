@@ -10,7 +10,7 @@ by adding `elixir_meta` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:elixir_meta, "~> 0.1.0"}
+    {:elixir_meta, "~> 0.1.0"},
   ]
 end
 ```
