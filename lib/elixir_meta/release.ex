@@ -5,20 +5,20 @@ defmodule ElixirMeta.Release do
   This module does not deal with releases prior to version `1.0.0`.
   """
 
-  use ElixirMeta.BackPort
+  use BackPort
 
   @type release_data :: %{
-          ElixirMeta.elixir_version_key => %{
+          ElixirMeta.elixir_version_key() => %{
             assets:
               nonempty_list(%{
-                id: non_neg_integer(),
-                name: String.t(),
                 content_type: String.t(),
-                state: String.t(),
-                size: non_neg_integer(),
                 created_at: DateTime.t(),
-                updated_at: DateTime.t(),
+                id: non_neg_integer(),
                 json_url: String.t(),
+                name: String.t(),
+                size: non_neg_integer(),
+                state: String.t(),
+                updated_at: DateTime.t(),
                 url: String.t()
               }),
             created_at: DateTime.t(),
@@ -43,18 +43,18 @@ defmodule ElixirMeta.Release do
   version_requirement = Version.parse_requirement!(">= 1.0.0")
 
   filter_asset = fn asset when is_map(asset) ->
-    {:ok, updated_at, 0} = DateTime.from_iso8601(asset["updated_at"])
     {:ok, created_at, 0} = DateTime.from_iso8601(asset["created_at"])
+    {:ok, updated_at, 0} = DateTime.from_iso8601(asset["updated_at"])
 
     %{
-      id: asset["id"],
-      name: asset["name"],
       content_type: asset["content_type"],
-      state: asset["state"],
-      size: asset["size"],
       created_at: created_at,
-      updated_at: updated_at,
+      id: asset["id"],
       json_url: asset["url"],
+      name: asset["name"],
+      size: asset["size"],
+      state: asset["state"],
+      updated_at: updated_at,
       url: asset["browser_download_url"]
     }
   end
@@ -73,16 +73,16 @@ defmodule ElixirMeta.Release do
         {:ok, created_at, 0} = DateTime.from_iso8601(elem["created_at"])
 
         Map.put(acc, version_string, %{
-          version: version,
-          prerelease?: version.pre != [],
-          id: elem["id"],
-          url: elem["html_url"],
-          json_url: elem["url"],
+          assets: Enum.map(elem["assets"], &filter_asset.(&1)),
           created_at: created_at,
+          id: elem["id"],
+          json_url: elem["url"],
+          prerelease?: version.pre != [],
           published_at: published_at,
           tarball_url: elem["tarball_url"],
-          zipball_url: elem["zipball_url"],
-          assets: Enum.map(elem["assets"], &filter_asset.(&1))
+          url: elem["html_url"],
+          version: version,
+          zipball_url: elem["zipball_url"]
         })
       else
         acc

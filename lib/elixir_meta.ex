@@ -26,5 +26,4 @@ defmodule ElixirMeta do
   Either a `Version.t/0` or a string representation.
   """
   @type version_representation :: Version.t() | String.t()
-
 end

@@ -1,7 +1,7 @@
 defmodule ElixirMeta.Compatibility.Util do
   @moduledoc false
-  
-  use ElixirMeta.BackPort
+
+  use BackPort
 
   def to_elixir_version(version) when is_binary(version) do
     Version.parse!(standardized_version(version))

@@ -5,13 +5,13 @@ defmodule ElixirMeta.Compatibility do
   Main documentation page: [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
   """
 
-  use ElixirMeta.BackPort
+  use BackPort
 
   import ElixirMeta.Compatibility.Util, only: [to_elixir_version_requirement: 1]
   import ElixirMeta.Util, only: [to_version: 1]
 
-  @type elixir_version :: ElixirMeta.elixir_version_key | ElixirMeta.version_representation()
-  @type otp_version :: ElixirMeta.version_representation() | ElixirMeta.otp_version_key
+  @type elixir_version :: ElixirMeta.elixir_version_key() | ElixirMeta.version_representation()
+  @type otp_version :: ElixirMeta.version_representation() | ElixirMeta.otp_version_key()
 
   compatibility_table =
     ElixirMetaData.compatibility()
