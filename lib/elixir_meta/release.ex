@@ -1,6 +1,6 @@
 defmodule ElixirMeta.Release do
   @moduledoc """
-  Functions for retrieving release related information.
+  Functions for retrieving information related to Elixir releases.
 
   This module does not deal with releases prior to version `1.0.0`.
   """
@@ -108,14 +108,14 @@ defmodule ElixirMeta.Release do
   end
 
   @doc """
-  Returns `true` if `version` is an existing Elixir version, whether it is a final release or a release candidate.
-  Otherwise it returns `false`.
+  Returns `true` if `version` is an existing Elixir prerelease (release candidate). Otherwise it returns `false`.
 
   `version` could be a string, or `Version` struct. 
   """
-  defguard is_elixir_version(version)
-           when (is_struct(version, Version) and version in @versions) or
-                  (is_binary(version) and version in unquote(versions_to_strings.(@versions)))
+  defguard is_elixir_prerelease(version)
+           when (is_struct(version, Version) and version in @prerelease_versions) or
+                  (is_binary(version) and
+                     version in unquote(versions_to_strings.(@prerelease_versions)))
 
   @doc """
   Returns `true` if `version` is an existing Elixir final release. Otherwise it returns `false`.
@@ -128,42 +128,22 @@ defmodule ElixirMeta.Release do
                      version in unquote(versions_to_strings.(@release_versions)))
 
   @doc """
-  Returns `true` if `version` is an existing Elixir prerelease (release candidate). Otherwise it returns `false`.
+  Returns `true` if `version` is an existing Elixir version, whether it is a final release or a release candidate.
+  Otherwise it returns `false`.
 
   `version` could be a string, or `Version` struct. 
   """
-  defguard is_elixir_prerelease(version)
-           when (is_struct(version, Version) and version in @prerelease_versions) or
-                  (is_binary(version) and
-                     version in unquote(versions_to_strings.(@prerelease_versions)))
+  defguard is_elixir_version(version)
+           when (is_struct(version, Version) and version in @versions) or
+                  (is_binary(version) and version in unquote(versions_to_strings.(@versions)))
+
+  @latest_version Enum.max(@release_versions, Version)
 
   @doc """
-  Returns a map which contains all the information that we find relevant from releases data.
-
-  Includes data from final releases and preseleases starting from Elixir version 1.0.0.
+  Returns the latest stable Elixir version.
   """
-  @spec release_data() :: release_data()
-  def release_data(), do: unquote(Macro.escape(release_data))
-
-  @doc """
-  Returns a map which contains all the information that we find relevant from releases data 
-  that matches the `version_requirement`.
-
-  Includes data from final releases and preseleases starting from Elixir version 1.0.0.
-  """
-  @spec release_data(version_requirement) :: release_data()
-  def release_data(elixir_version_requirement, options \\ [])
-      when is_version_requirement(elixir_version_requirement) do
-    # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
-    Enum.reduce(release_data(), %{}, fn
-      {k, map}, acc ->
-        if Version.match?(map.version, elixir_version_requirement, options) do
-          Map.put(acc, k, map)
-        else
-          acc
-        end
-    end)
-  end
+  @spec latest_version() :: Version.t()
+  def latest_version(), do: @latest_version
 
   @doc """
   Returns a map with all the prereleases since Elixir v1.0.0.
@@ -198,6 +178,34 @@ defmodule ElixirMeta.Release do
   end
 
   @doc """
+  Returns a map which contains all the information that we find relevant from releases data.
+
+  Includes data from final releases and preseleases starting from Elixir version 1.0.0.
+  """
+  @spec release_data() :: release_data()
+  def release_data(), do: unquote(Macro.escape(release_data))
+
+  @doc """
+  Returns a map which contains all the information that we find relevant from releases data 
+  that matches the `version_requirement`.
+
+  Includes data from final releases and preseleases starting from Elixir version 1.0.0.
+  """
+  @spec release_data(version_requirement) :: release_data()
+  def release_data(elixir_version_requirement, options \\ [])
+      when is_version_requirement(elixir_version_requirement) do
+    # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
+    Enum.reduce(release_data(), %{}, fn
+      {k, map}, acc ->
+        if Version.match?(map.version, elixir_version_requirement, options) do
+          Map.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+  end
+
+  @doc """
   Returns a list with all the Elixir versions since v1.0.0
   """
   @spec versions() :: [Version.t()]
@@ -214,12 +222,4 @@ defmodule ElixirMeta.Release do
   def versions(kind)
   def versions(:release), do: @release_versions
   def versions(:prerelease), do: @prerelease_versions
-
-  @latest_version Enum.max(@release_versions, Version)
-
-  @doc """
-  Returns the latest stable Elixir version.
-  """
-  @spec latest_version() :: Version.t()
-  def latest_version(), do: @latest_version
 end
