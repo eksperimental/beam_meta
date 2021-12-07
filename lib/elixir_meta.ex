@@ -4,7 +4,7 @@ defmodule ElixirMeta do
 
   So far the library has the following submodules:
   - `ElixirMeta.Compatibility`: compatibility between Elixir and Erlang/OTP versions.
-  - `ElixirMeta.Releases`: all the information related to releases such as published versions,
+  - `ElixirMeta.Release`: all the information related to releases such as published versions,
     release condidates, latest Elixir version, etc.
 
   Additionally, there is a sister library called `ElixirMetaData` which contains the udpated data used by
@@ -13,7 +13,7 @@ defmodule ElixirMeta do
 
   @typedoc """
   It is a string that represents an Elixir version. It doe snot necessarily need to be a full version,
-  it could be MAJOR.MINOR, for example: `"1.2"` or `"1.2.3"`.
+  it could be `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`, for example: `"1.2"` or `"1.2.3"`.
   """
   @type elixir_version_key :: String.t()
 
@@ -23,7 +23,7 @@ defmodule ElixirMeta do
   @type otp_version_key :: non_neg_integer
 
   @typedoc """
-  Either a `Version.t/0` or a string representation.
+  Either a `t:Version.t/0` or a string representation.
   """
   @type version_representation :: Version.t() | String.t()
 end
