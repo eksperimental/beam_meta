@@ -12,13 +12,17 @@ defmodule ElixirMeta do
   """
 
   @typedoc """
-  It is a string that represents an Elixir version. It doe snot necessarily need to be a full version,
-  it could be `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`, for example: `"1.2"` or `"1.2.3"`.
+  It is a string that represents an Elixir version.
+
+  It does not necessarily need to be a full version, it could be `"MAJOR.MINOR"` or
+  `"MAJOR.MINOR.PATCH"`, for example: `"1.2"` or `"1.2.3"`.
   """
   @type elixir_version_key :: String.t()
 
   @typedoc """
-  It is an integer that represents the Erlang/OTP major version, for example: `24`.
+  It is an integer that represents the Erlang/OTP major version.
+
+  For example: `24`.
   """
   @type otp_version_key :: non_neg_integer
 

@@ -7,6 +7,11 @@ defmodule ElixirMeta.Release do
 
   use BackPort
 
+  @typedoc """
+  A map that information related to a release in GitHub.
+
+  This information is originally provided by `t:ElixirMetaData.releases/0` and is transformed.
+  """
   @type release_data :: %{
           ElixirMeta.elixir_version_key() => %{
             assets:
@@ -32,15 +37,34 @@ defmodule ElixirMeta.Release do
             zipball_url: String.t()
           }
         }
+
+  @typedoc """
+  Whether the release is a prerelease or a final release.
+  """
   @type release_kind :: :release | :prerelease
+
+  @typedoc """
+  A release version.
+
+  It could it be a `t:Version.t/0` or a string representation of this one,
+  for example: `#Version<24.0.0>` or `"1.13.0"`.
+  """
   @type version :: Version.t() | String.t()
+
+  @typedoc """
+  A release version requirement.
+
+  It could it be a `t:Version.Requirement.t/0` or a string representation of this one,
+  for example: `#Version.Requirement<"~> 24.0">` or `"~> 1.13"`.
+  """
   @type version_requirement :: Version.Requirement.t() | String.t()
 
+  # Note that if `term` is a string, it does not check whether it is a valid version requirement.
   defguardp is_version_requirement(term)
             when is_struct(term, Version.Requirement) or is_binary(term)
 
   # This is the minimum requirement. We do not retrieve anything prior 1.0.0
-  version_requirement = Version.parse_requirement!(">= 1.0.0")
+  @minimal_elixir_version_requirement Version.parse_requirement!(">= 1.0.0")
 
   filter_asset = fn asset when is_map(asset) ->
     {:ok, created_at, 0} = DateTime.from_iso8601(asset["created_at"])
@@ -68,7 +92,7 @@ defmodule ElixirMeta.Release do
 
       version = Version.parse!(version_string)
 
-      if Version.match?(version, version_requirement) do
+      if Version.match?(version, @minimal_elixir_version_requirement) do
         {:ok, published_at, 0} = DateTime.from_iso8601(elem["published_at"])
         {:ok, created_at, 0} = DateTime.from_iso8601(elem["created_at"])
 
@@ -362,7 +386,7 @@ defmodule ElixirMeta.Release do
 
   @doc """
   Returns a map which contains all the information that we find relevant from releases data 
-  that matches the `version_requirement`.
+  that matches the `elixir_version_requirement`.
 
   Includes data from final releases and preseleases starting from Elixir version 1.0.0.
 
@@ -435,8 +459,8 @@ defmodule ElixirMeta.Release do
 
       ElixirMeta.Release.versions()
       #=> [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
-       #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
-       #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
+           #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
+           #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
 
   """
   @spec versions() :: [Version.t()]

@@ -1,6 +1,20 @@
 # ElixirMeta
 
-**TODO: Add description**
+`ElixirMeta` is a library to programmatically retrieve information related to the Elixir language.
+
+So far the library has the following submodules:
+- `ElixirMeta.Compatibility`: compatibility between Elixir and Erlang/OTP versions.
+- `ElixirMeta.Release`: all the information related to releases such as published versions,
+  release condidates, latest Elixir version, etc.
+
+Additionally, there is a sister library called `ElixirMetaData` which contains the udpated data used by
+this library such as the compatibility tables, and release information.
+
+
+## Repository
+
+This source code is freely available at <https://github.com/eksperimental/elixir_meta_data>
+
 
 ## Installation
 
@@ -15,7 +29,16 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/elixir_meta>.
+## Documentation
 
+Online documentation can be found at <https://hexdocs.pm/elixir_meta>
+
+
+## Contact
+
+Eksperimental <eskperimental (at) autistici (dot) org>
+
+
+## License
+
+ElixirMeta source code is licensed under the [MIT License](LICENSE.md).

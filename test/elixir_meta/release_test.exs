@@ -51,7 +51,8 @@ defmodule Release.Test do
   end
 
   test "prereleases/0" do
-    assert Release.prereleases() |> Map.keys() |> Enum.sort(Version) |> List.first() == "1.3.0-rc.0"
+    assert Release.prereleases() |> Map.keys() |> Enum.sort(Version) |> List.first() ==
+             "1.3.0-rc.0"
   end
 
   test "releases/0" do
@@ -65,12 +66,14 @@ defmodule Release.Test do
     assert Release.release_data() |> Map.has_key?("1.0.0") == true
     assert Release.release_data() |> Map.has_key?("1.13.0-rc.1") == true
     assert Release.release_data() |> Map.has_key?("1.13.0") == true
-    assert Release.release_data() |> Enum.count >= @min_version_count
+    assert Release.release_data() |> Enum.count() >= @min_version_count
   end
 
   test "release_data/1" do
     assert Release.release_data("~> 1.12") |> Map.has_key?("1.13.0-rc.1") == true
-    assert Release.release_data("~> 1.12", allow_pre: false) |> Map.has_key?("1.13.0-rc.1") == false
+
+    assert Release.release_data("~> 1.12", allow_pre: false) |> Map.has_key?("1.13.0-rc.1") ==
+             false
   end
 
   test "versions/0" do

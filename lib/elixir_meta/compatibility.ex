@@ -10,8 +10,26 @@ defmodule ElixirMeta.Compatibility do
   import ElixirMeta.Compatibility.Util, only: [to_elixir_version_requirement: 1]
   import ElixirMeta.Util, only: [to_version: 1]
 
+  @typedoc """
+  Represents an Elixir version.
+
+  It could be:
+
+  - a string in the shape of `"MAJOR.MINOR"`, for example: `"1.13"`;
+  - a `t:Version.t/0` or string representation of this one, for example: `#Version<1.13.0>` or `"1.13.0"`.
+
+  """
   @type elixir_version :: ElixirMeta.elixir_version_key() | ElixirMeta.version_representation()
-  @type otp_version :: ElixirMeta.version_representation() | ElixirMeta.otp_version_key()
+
+  @typedoc """
+  Represents an Erlang/OTP version.
+
+  It could be:
+
+  - Ian integer that represents the Erlang/OTP major version, for example: `24`.
+  - a `t:Version.t/0` or string representation of this one, for example: `#Version<24.0.0>` or `"24.0.0"`.
+  """
+  @type otp_version :: ElixirMeta.otp_version_key() | ElixirMeta.version_representation()
 
   @doc """
   Determines whether the give Elixir and Elang/OTP versions are compatible.
