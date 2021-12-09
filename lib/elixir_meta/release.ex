@@ -90,6 +90,7 @@ defmodule ElixirMeta.Release do
     end)
 
   @versions Enum.map(release_data, fn {_k, map} -> Map.get(map, :version) end)
+            |> Enum.sort_by(& &1, {:asc, Version})
 
   @prerelease_versions release_data
                        |> Enum.filter(fn {_k, map} -> map.prerelease? end)
@@ -110,7 +111,22 @@ defmodule ElixirMeta.Release do
   @doc """
   Returns `true` if `version` is an existing Elixir prerelease (release candidate). Otherwise it returns `false`.
 
-  `version` could be a string, or `Version` struct. 
+  `version` could be a string, or `Version` struct.
+
+  Allowed in guard tests.
+
+  Examples:
+
+      iex> version = Version.parse!("1.13.0-rc.0")
+      ...> ElixirMeta.Release.is_elixir_prerelease(version)
+      true
+
+      iex> ElixirMeta.Release.is_elixir_prerelease("1.13.0-rc.0")
+      true
+
+      iex> ElixirMeta.Release.is_elixir_prerelease("1.13.0")
+      false
+
   """
   defguard is_elixir_prerelease(version)
            when (is_struct(version, Version) and version in @prerelease_versions) or
@@ -120,7 +136,22 @@ defmodule ElixirMeta.Release do
   @doc """
   Returns `true` if `version` is an existing Elixir final release. Otherwise it returns `false`.
 
-  `version` could be a string, or `Version` struct. 
+  `version` could be a string, or `Version` struct.
+
+  Allowed in guard tests.
+
+  Examples:
+
+      iex> version = Version.parse!("1.13.0")
+      ...> ElixirMeta.Release.is_elixir_release(version)
+      true
+
+      iex> ElixirMeta.Release.is_elixir_release("1.13.0-rc.0")
+      false
+
+      iex> ElixirMeta.Release.is_elixir_release("1.11.10")
+      false
+
   """
   defguard is_elixir_release(version)
            when (is_struct(version, Version) and version in @release_versions) or
@@ -131,7 +162,22 @@ defmodule ElixirMeta.Release do
   Returns `true` if `version` is an existing Elixir version, whether it is a final release or a release candidate.
   Otherwise it returns `false`.
 
-  `version` could be a string, or `Version` struct. 
+  `version` could be a string, or `Version` struct.
+
+  Allowed in guard tests.
+
+  Examples:
+
+      iex> version = Version.parse!("1.13.0")
+      ...> ElixirMeta.Release.is_elixir_version(version)
+      true
+
+      iex> ElixirMeta.Release.is_elixir_version("1.13.0-rc.0")
+      true
+
+      iex> ElixirMeta.Release.is_elixir_version("1.11.10")
+      false
+
   """
   defguard is_elixir_version(version)
            when (is_struct(version, Version) and version in @versions) or
@@ -147,6 +193,50 @@ defmodule ElixirMeta.Release do
 
   @doc """
   Returns a map with all the prereleases since Elixir v1.0.0.
+
+  Examples:
+
+      ElixirMeta.Release.prereleases()
+      #=> %{
+        "1.10.0-rc.0" => %{
+          assets: [
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2020-01-07 15:08:43Z],
+              id: 17188069,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/17188069",
+              name: "Docs.zip",
+              size: 2119178,
+              state: "uploaded",
+              updated_at: ~U[2020-01-07 15:09:40Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.10.0-rc.0/Docs.zip"
+            },
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2020-01-07 15:08:47Z],
+              id: 17188070,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/17188070",
+              name: "Precompiled.zip",
+              size: 5666120,
+              state: "uploaded",
+              updated_at: ~U[2020-01-07 15:09:40Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.10.0-rc.0/Precompiled.zip"
+            }
+          ],
+          created_at: ~U[2020-01-07 14:10:04Z],
+          id: 22650172,
+          json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/22650172",
+          prerelease?: true,
+          published_at: ~U[2020-01-07 15:09:40Z],
+          tarball_url: "https://api.github.com/repos/elixir-lang/elixir/tarball/v1.10.0-rc.0",
+          url: "https://github.com/elixir-lang/elixir/releases/tag/v1.10.0-rc.0",
+          version: #Version<1.10.0-rc.0>,
+          zipball_url: "https://api.github.com/repos/elixir-lang/elixir/zipball/v1.10.0-rc.0"
+        },
+        ...
+      }
+
+
   """
   @spec prereleases() :: release_data()
   def prereleases() do
@@ -154,15 +244,57 @@ defmodule ElixirMeta.Release do
     Enum.reduce(release_data(), %{}, fn
       {k, map}, acc ->
         if map.prerelease? do
-          acc
-        else
           Map.put(acc, k, map)
+        else
+          acc
         end
     end)
   end
 
   @doc """
-  Returns a map with only final releases since Elixir v1.0.0
+  Returns a map with only final releases since Elixir v1.0.0.
+
+  Examples:
+      ElixirMeta.Release.releases()
+      #=> %{
+          "1.12.1" => %{
+            assets: [
+              %{
+                content_type: "application/zip",
+                created_at: ~U[2021-05-28 15:51:16Z],
+                id: 37714034,
+                json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714034",
+                name: "Docs.zip",
+                size: 5502033,
+                state: "uploaded",
+                updated_at: ~U[2021-05-28 15:51:54Z],
+                url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
+              },
+              %{
+                content_type: "application/zip",
+                created_at: ~U[2021-05-28 15:51:27Z],
+                id: 37714052,
+                json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714052",
+                name: "Precompiled.zip",
+                size: 6049663,
+                state: "uploaded",
+                updated_at: ~U[2021-05-28 15:51:54Z],
+                url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
+              }
+            ],
+            created_at: ~U[2021-05-28 15:34:14Z],
+            id: 43775368,
+            json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/43775368",
+            prerelease?: false,
+            published_at: ~U[2021-05-28 15:51:54Z],
+            tarball_url: "https://api.github.com/repos/elixir-lang/elixir/tarball/v1.12.1",
+            url: "https://github.com/elixir-lang/elixir/releases/tag/v1.12.1",
+            version: #Version<1.12.1>,
+            zipball_url: "https://api.github.com/repos/elixir-lang/elixir/zipball/v1.12.1"
+          },
+          ...
+        }
+
   """
   @spec releases() :: release_data()
   def releases() do
@@ -170,9 +302,9 @@ defmodule ElixirMeta.Release do
     Enum.reduce(release_data(), %{}, fn
       {k, map}, acc ->
         if map.prerelease? do
-          Map.put(acc, k, map)
-        else
           acc
+        else
+          Map.put(acc, k, map)
         end
     end)
   end
@@ -181,6 +313,49 @@ defmodule ElixirMeta.Release do
   Returns a map which contains all the information that we find relevant from releases data.
 
   Includes data from final releases and preseleases starting from Elixir version 1.0.0.
+
+  Examples:
+
+      ElixirMeta.Release.release_data()
+      #=> %{
+        "1.12.1" => %{
+          assets: [
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2021-05-28 15:51:16Z],
+              id: 37714034,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714034",
+              name: "Docs.zip",
+              size: 5502033,
+              state: "uploaded",
+              updated_at: ~U[2021-05-28 15:51:54Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
+            },
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2021-05-28 15:51:27Z],
+              id: 37714052,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714052",
+              name: "Precompiled.zip",
+              size: 6049663,
+              state: "uploaded",
+              updated_at: ~U[2021-05-28 15:51:54Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
+            }
+          ],
+          created_at: ~U[2021-05-28 15:34:14Z],
+          id: 43775368,
+          json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/43775368",
+          prerelease?: false,
+          published_at: ~U[2021-05-28 15:51:54Z],
+          tarball_url: "https://api.github.com/repos/elixir-lang/elixir/tarball/v1.12.1",
+          url: "https://github.com/elixir-lang/elixir/releases/tag/v1.12.1",
+          version: #Version<1.12.1>,
+          zipball_url: "https://api.github.com/repos/elixir-lang/elixir/zipball/v1.12.1"
+        },
+        ...
+      }
+
   """
   @spec release_data() :: release_data()
   def release_data(), do: unquote(Macro.escape(release_data))
@@ -190,6 +365,52 @@ defmodule ElixirMeta.Release do
   that matches the `version_requirement`.
 
   Includes data from final releases and preseleases starting from Elixir version 1.0.0.
+
+  `options` are options supported by `Version.match?/3`. Currently the only key supported
+  is `:allow_pre` which accepts `true` or `false` values. Defaults to `true`.
+
+  Examples:
+
+      ElixirMeta.Release.release_data("~> 1.12", allow_pre: false)
+      #=> %{
+        "1.12.1" => %{
+          assets: [
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2021-05-28 15:51:16Z],
+              id: 37714034,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714034",
+              name: "Docs.zip",
+              size: 5502033,
+              state: "uploaded",
+              updated_at: ~U[2021-05-28 15:51:54Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
+            },
+            %{
+              content_type: "application/zip",
+              created_at: ~U[2021-05-28 15:51:27Z],
+              id: 37714052,
+              json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/assets/37714052",
+              name: "Precompiled.zip",
+              size: 6049663,
+              state: "uploaded",
+              updated_at: ~U[2021-05-28 15:51:54Z],
+              url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
+            }
+          ],
+          created_at: ~U[2021-05-28 15:34:14Z],
+          id: 43775368,
+          json_url: "https://api.github.com/repos/elixir-lang/elixir/releases/43775368",
+          prerelease?: false,
+          published_at: ~U[2021-05-28 15:51:54Z],
+          tarball_url: "https://api.github.com/repos/elixir-lang/elixir/tarball/v1.12.1",
+          url: "https://github.com/elixir-lang/elixir/releases/tag/v1.12.1",
+          version: #Version<1.12.1>,
+          zipball_url: "https://api.github.com/repos/elixir-lang/elixir/zipball/v1.12.1"
+        },
+        ...
+      }
+
   """
   @spec release_data(version_requirement) :: release_data()
   def release_data(elixir_version_requirement, options \\ [])
@@ -206,7 +427,17 @@ defmodule ElixirMeta.Release do
   end
 
   @doc """
-  Returns a list with all the Elixir versions since v1.0.0
+  Returns a list with all the Elixir versions since v1.0.0.
+
+  The list contains the versions in the `t:Version.t/0` format, sorted ascendenly.
+
+  Examples:
+
+      ElixirMeta.Release.versions()
+      #=> [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
+       #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
+       #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
+
   """
   @spec versions() :: [Version.t()]
   def versions(), do: @versions
@@ -214,9 +445,24 @@ defmodule ElixirMeta.Release do
   @doc """
   Returns a list Elixir versions since v1.0.0, according to `kind`.
 
+  The list contains the versions in the `t:Version.t/0` format, sorted ascendenly.
+
   `kind` can be:
   - `:release`
   - `:prerelease`
+
+  Examples:
+
+      ElixirMeta.Release.versions(:release)
+      #=> [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
+           #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
+           #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
+
+      ElixirMeta.Release.versions(:prerelease)
+      #=> [#Version<1.3.0-rc.0>, #Version<1.3.0-rc.1>, #Version<1.4.0-rc.0>, #Version<1.4.0-rc.1>,
+           #Version<1.5.0-rc.0>, #Version<1.5.0-rc.1>, #Version<1.5.0-rc.2>, #Version<1.6.0-rc.0>,
+           #Version<1.6.0-rc.1>, #Version<1.7.0-rc.0>, #Version<1.7.0-rc.1>, #Version<1.8.0-rc.0>, ...]
+
   """
   @spec versions(release_kind) :: [Version.t()]
   def versions(kind)
