@@ -7,19 +7,21 @@ So far the library has the following submodules:
 - `ElixirMeta.Release`: all the information related to releases such as published versions,
   release condidates, latest Elixir version, etc.
 
-Additionally, there is a sister library called `ElixirMetaData` which contains the udpated data used by
-this library such as the compatibility tables, and release information.
+Additionally, there is a sister library called `ElixirMetaData` which contains the up-to-date data and one which
+this library builds on such as the compatibility tables, and release information.
 
 
-## Repository
+## Repository and Packages
 
-This source code is freely available at <https://github.com/eksperimental/elixir_meta_data>
+This source code is freely available at <https://github.com/eksperimental/elixir_meta>
+
+Packages are regularly updated.
+All published packages can be found on Hex: <https://hex.pm/packages/elixir_meta>
 
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `elixir_meta` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `elixir_meta` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -33,6 +35,15 @@ end
 
 Online documentation can be found at <https://hexdocs.pm/elixir_meta>
 
+
+## Feature Requests
+
+Feel free to open up an issue <https://github.com/eksperimental/elixir_meta/issues> with your request.
+
+
+## Future Plans
+
+I am planning to include the information for all Erlang/OTP releases, same as we do for Elixir.
 
 ## Contact
 

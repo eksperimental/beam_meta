@@ -24,7 +24,7 @@ defmodule ElixirMeta.MixProject do
         main: "ElixirMeta",
         # logo: "path/to/logo.png",
         extras: [
-          "README.md": [filename: "readme", title: "ReadMe"],
+          "README.md": [filename: "readme", title: "Readme"],
           "LICENSE.md": [filename: "license", title: "License"]
         ]
       ]
@@ -38,20 +38,25 @@ defmodule ElixirMeta.MixProject do
     ]
   end
 
+  defp aliases do
+    [
+      validate: ["format --check-formatted", "dialyzer", "docs", "credo"]
+    ]
+  end
+
   defp package do
     [
       maintainers: ["Eksperimental"],
       licenses: ["MIT"],
       links: %{"GitHub" => @repo_url},
       files: ~w(
-          lib
+          lib/
           LICENSE.md
           mix.exs
           README.md
           .formatter.exs
         )
-    ]
-  end
+    ]  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -61,12 +66,6 @@ defmodule ElixirMeta.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.26", only: :dev, runtime: false}
-    ]
-  end
-
-  defp aliases do
-    [
-      validate: ["format --check-formatted", "dialyzer", "docs", "credo"]
     ]
   end
 end

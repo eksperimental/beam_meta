@@ -37,7 +37,7 @@ defmodule ElixirMeta.Compatibility do
   `elixir_version` can be a `t:Version.t/0` or a string.
   `otp_version` can be  a `t:Version.t/0`, a string or an integer.
 
-  Examples:
+  ## Examples
 
       iex> ElixirMeta.Compatibility.compatible?("1.13", 24)
       true
@@ -79,7 +79,7 @@ defmodule ElixirMeta.Compatibility do
 
   The results are sorted ascendenly.
 
-  Examples:
+  ## Examples
 
       iex> ElixirMeta.Compatibility.elixir_releases(21)
       ["1.6", "1.7", "1.8", "1.9", "1.10", "1.10.3", "1.11", "1.11.4"]
@@ -87,11 +87,11 @@ defmodule ElixirMeta.Compatibility do
       iex> ElixirMeta.Compatibility.elixir_releases("17.1", :key)
       ["1.0", "1.0.5", "1.1"]
 
-      ElixirMeta.Compatibility.elixir_releases("17.1", :version)
-      #=> [#Version<1.0.0>, #Version<1.0.5>, #Version<1.1.0>]
+      > ElixirMeta.Compatibility.elixir_releases("17.1", :version)
+      [#Version<1.0.0>, #Version<1.0.5>, #Version<1.1.0>]
 
-      ElixirMeta.Compatibility.elixir_releases("17.1", :version_requirement)
-      #=> [#Version.Requirement<~> 1.0.0>, #Version.Requirement<~> 1.0.5-0>, #Version.Requirement<~> 1.1.0-0>]
+      > ElixirMeta.Compatibility.elixir_releases("17.1", :version_requirement)
+      [#Version.Requirement<~> 1.0.0>, #Version.Requirement<~> 1.0.5-0>, #Version.Requirement<~> 1.1.0-0>]
 
       iex> ElixirMeta.Compatibility.elixir_releases(16)
       []
@@ -155,7 +155,7 @@ defmodule ElixirMeta.Compatibility do
 
   The results are sorted ascendenly.
 
-  Examples:
+  ## Examples
 
       # MAJOR.MINOR
       iex> ElixirMeta.Compatibility.otp_releases("1.11")
@@ -174,11 +174,11 @@ defmodule ElixirMeta.Compatibility do
       iex> ElixirMeta.Compatibility.otp_releases("1.11.4", :key)
       [21, 22, 23, 24]
 
-      ElixirMeta.Compatibility.otp_releases("1.11.4", :version)
-      #=> [#Version<21.0.0>, #Version<22.0.0>, #Version<23.0.0>, #Version<24.0.0>]
+      > ElixirMeta.Compatibility.otp_releases("1.11.4", :version)
+      [#Version<21.0.0>, #Version<22.0.0>, #Version<23.0.0>, #Version<24.0.0>]
 
-      ElixirMeta.Compatibility.otp_releases("1.11.4", :version_requirement)
-      #=> [#Version.Requirement<~> 21.0>, #Version.Requirement<~> 22.0>, #Version.Requirement<~> 23.0>, #Version.Requirement<~> 24.0>]
+      > ElixirMeta.Compatibility.otp_releases("1.11.4", :version_requirement)
+      [#Version.Requirement<~> 21.0>, #Version.Requirement<~> 22.0>, #Version.Requirement<~> 23.0>, #Version.Requirement<~> 24.0>]
 
       # Version do not necessarily need to exist.
       # The results are based on the compaibility table

@@ -10,7 +10,7 @@ defmodule ElixirMeta.Release do
   @typedoc """
   A map that information related to a release in GitHub.
 
-  This information is originally provided by `t:ElixirMetaData.releases/0` and is transformed.
+  This information is originally provided by `t:ElixirMetaData.elixir_releases/0` and is transformed.
   """
   @type release_data :: %{
           ElixirMeta.elixir_version_key() => %{
@@ -84,7 +84,7 @@ defmodule ElixirMeta.Release do
   end
 
   release_data =
-    ElixirMetaData.releases()
+    ElixirMetaData.elixir_releases()
     |> Enum.reduce(%{}, fn elem, acc ->
       version_string =
         elem["tag_name"]
@@ -139,7 +139,7 @@ defmodule ElixirMeta.Release do
 
   Allowed in guard tests.
 
-  Examples:
+  ## Examples
 
       iex> version = Version.parse!("1.13.0-rc.0")
       ...> ElixirMeta.Release.is_elixir_prerelease(version)
@@ -164,7 +164,7 @@ defmodule ElixirMeta.Release do
 
   Allowed in guard tests.
 
-  Examples:
+  ## Examples
 
       iex> version = Version.parse!("1.13.0")
       ...> ElixirMeta.Release.is_elixir_release(version)
@@ -190,7 +190,7 @@ defmodule ElixirMeta.Release do
 
   Allowed in guard tests.
 
-  Examples:
+  ## Examples
 
       iex> version = Version.parse!("1.13.0")
       ...> ElixirMeta.Release.is_elixir_version(version)
@@ -218,10 +218,10 @@ defmodule ElixirMeta.Release do
   @doc """
   Returns a map with all the prereleases since Elixir v1.0.0.
 
-  Examples:
+  ## Examples
 
-      ElixirMeta.Release.prereleases()
-      #=> %{
+      > ElixirMeta.Release.prereleases()
+      %{
         "1.10.0-rc.0" => %{
           assets: [
             %{
@@ -278,9 +278,10 @@ defmodule ElixirMeta.Release do
   @doc """
   Returns a map with only final releases since Elixir v1.0.0.
 
-  Examples:
-      ElixirMeta.Release.releases()
-      #=> %{
+  ## Examples
+
+      > ElixirMeta.Release.releases()
+      %{
           "1.12.1" => %{
             assets: [
               %{
@@ -338,10 +339,10 @@ defmodule ElixirMeta.Release do
 
   Includes data from final releases and preseleases starting from Elixir version 1.0.0.
 
-  Examples:
+  ## Examples
 
-      ElixirMeta.Release.release_data()
-      #=> %{
+      > ElixirMeta.Release.release_data()
+      %{
         "1.12.1" => %{
           assets: [
             %{
@@ -393,10 +394,10 @@ defmodule ElixirMeta.Release do
   `options` are options supported by `Version.match?/3`. Currently the only key supported
   is `:allow_pre` which accepts `true` or `false` values. Defaults to `true`.
 
-  Examples:
+  ## Examples
 
-      ElixirMeta.Release.release_data("~> 1.12", allow_pre: false)
-      #=> %{
+      > ElixirMeta.Release.release_data("~> 1.12", allow_pre: false)
+      %{
         "1.12.1" => %{
           assets: [
             %{
@@ -455,12 +456,12 @@ defmodule ElixirMeta.Release do
 
   The list contains the versions in the `t:Version.t/0` format, sorted ascendenly.
 
-  Examples:
+  ## Examples:
 
-      ElixirMeta.Release.versions()
-      #=> [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
-           #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
-           #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
+      > ElixirMeta.Release.versions()
+      [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
+       #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
+       #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
 
   """
   @spec versions() :: [Version.t()]
@@ -475,17 +476,17 @@ defmodule ElixirMeta.Release do
   - `:release`
   - `:prerelease`
 
-  Examples:
+  ## Examples
 
-      ElixirMeta.Release.versions(:release)
-      #=> [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
-           #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
-           #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
+      > ElixirMeta.Release.versions(:release)
+      [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
+       #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
+       #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
 
-      ElixirMeta.Release.versions(:prerelease)
-      #=> [#Version<1.3.0-rc.0>, #Version<1.3.0-rc.1>, #Version<1.4.0-rc.0>, #Version<1.4.0-rc.1>,
-           #Version<1.5.0-rc.0>, #Version<1.5.0-rc.1>, #Version<1.5.0-rc.2>, #Version<1.6.0-rc.0>,
-           #Version<1.6.0-rc.1>, #Version<1.7.0-rc.0>, #Version<1.7.0-rc.1>, #Version<1.8.0-rc.0>, ...]
+      > ElixirMeta.Release.versions(:prerelease)
+      [#Version<1.3.0-rc.0>, #Version<1.3.0-rc.1>, #Version<1.4.0-rc.0>, #Version<1.4.0-rc.1>,
+       #Version<1.5.0-rc.0>, #Version<1.5.0-rc.1>, #Version<1.5.0-rc.2>, #Version<1.6.0-rc.0>,
+       #Version<1.6.0-rc.1>, #Version<1.7.0-rc.0>, #Version<1.7.0-rc.1>, #Version<1.8.0-rc.0>, ...]
 
   """
   @spec versions(release_kind) :: [Version.t()]
