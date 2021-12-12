@@ -26,7 +26,8 @@ defmodule ElixirMeta.MixProject do
         extras: [
           "README.md": [filename: "readme", title: "Readme"],
           "LICENSE.md": [filename: "license", title: "License"]
-        ]
+        ],
+        source_ref: revision()
       ]
     ]
   end
@@ -56,7 +57,8 @@ defmodule ElixirMeta.MixProject do
           README.md
           .formatter.exs
         )
-    ]  end
+    ]
+  end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -67,5 +69,25 @@ defmodule ElixirMeta.MixProject do
       {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.26", only: :dev, runtime: false}
     ]
+  end
+
+  # Originally taken from: https://github.com/elixir-lang/elixir/blob/2b0abcebbe9acee4a103c9d02c6bae707f0e9e73/lib/elixir/lib/system.ex#L1019
+  # Tries to run "git rev-parse --short=7 HEAD". In the case of success returns
+  # the short revision hash. If that fails, returns an empty string.
+  defp revision do
+    null =
+      case :os.type() do
+        {:win32, _} -> 'NUL'
+        _ -> '/dev/null'
+      end
+
+    'git rev-parse --short=7 HEAD 2> '
+    |> Kernel.++(null)
+    |> :os.cmd()
+    |> strip
+  end
+
+  defp strip(iodata) do
+    :re.replace(iodata, "^[\s\r\n\t]+|[\s\r\n\t]+$", "", [:global, return: :binary])
   end
 end
