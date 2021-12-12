@@ -23,7 +23,6 @@ defmodule ElixirMeta.Release do
                 name: String.t(),
                 size: non_neg_integer(),
                 state: String.t(),
-                updated_at: DateTime.t(),
                 url: String.t()
               }),
             created_at: DateTime.t(),
@@ -68,7 +67,6 @@ defmodule ElixirMeta.Release do
 
   filter_asset = fn asset when is_map(asset) ->
     {:ok, created_at, 0} = DateTime.from_iso8601(asset["created_at"])
-    {:ok, updated_at, 0} = DateTime.from_iso8601(asset["updated_at"])
 
     %{
       content_type: asset["content_type"],
@@ -78,7 +76,6 @@ defmodule ElixirMeta.Release do
       name: asset["name"],
       size: asset["size"],
       state: asset["state"],
-      updated_at: updated_at,
       url: asset["browser_download_url"]
     }
   end
@@ -232,7 +229,6 @@ defmodule ElixirMeta.Release do
               name: "Docs.zip",
               size: 2119178,
               state: "uploaded",
-              updated_at: ~U[2020-01-07 15:09:40Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.10.0-rc.0/Docs.zip"
             },
             %{
@@ -243,7 +239,6 @@ defmodule ElixirMeta.Release do
               name: "Precompiled.zip",
               size: 5666120,
               state: "uploaded",
-              updated_at: ~U[2020-01-07 15:09:40Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.10.0-rc.0/Precompiled.zip"
             }
           ],
@@ -292,7 +287,6 @@ defmodule ElixirMeta.Release do
                 name: "Docs.zip",
                 size: 5502033,
                 state: "uploaded",
-                updated_at: ~U[2021-05-28 15:51:54Z],
                 url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
               },
               %{
@@ -303,7 +297,6 @@ defmodule ElixirMeta.Release do
                 name: "Precompiled.zip",
                 size: 6049663,
                 state: "uploaded",
-                updated_at: ~U[2021-05-28 15:51:54Z],
                 url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
               }
             ],
@@ -353,7 +346,6 @@ defmodule ElixirMeta.Release do
               name: "Docs.zip",
               size: 5502033,
               state: "uploaded",
-              updated_at: ~U[2021-05-28 15:51:54Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
             },
             %{
@@ -364,7 +356,6 @@ defmodule ElixirMeta.Release do
               name: "Precompiled.zip",
               size: 6049663,
               state: "uploaded",
-              updated_at: ~U[2021-05-28 15:51:54Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
             }
           ],
@@ -408,7 +399,6 @@ defmodule ElixirMeta.Release do
               name: "Docs.zip",
               size: 5502033,
               state: "uploaded",
-              updated_at: ~U[2021-05-28 15:51:54Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Docs.zip"
             },
             %{
@@ -419,7 +409,6 @@ defmodule ElixirMeta.Release do
               name: "Precompiled.zip",
               size: 6049663,
               state: "uploaded",
-              updated_at: ~U[2021-05-28 15:51:54Z],
               url: "https://github.com/elixir-lang/elixir/releases/download/v1.12.1/Precompiled.zip"
             }
           ],
