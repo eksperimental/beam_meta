@@ -32,10 +32,22 @@ defmodule ElixirMeta.Compatibility do
   @type otp_version :: ElixirMeta.otp_version_key() | ElixirMeta.version_representation()
 
   @doc """
-  Determines whether the give Elixir and Elang/OTP versions are compatible.
+  Determines whether the given Elixir and Elang/OTP versions are compatible.
+
+  The results are based on the [compatibility table](`table/0`). This function does not check
+  that the Elixir and Erlang/OTP actually exists.
 
   `elixir_version` can be a `t:Version.t/0` or a string.
   `otp_version` can be  a `t:Version.t/0`, a string or an integer.
+  `ElixirMeta.Compatibility.compatible?("1.11.999", 24)` will return `true` since
+  Elixir v1.11 is compatible with OTP 24. If you want to make sure the Elixir
+  version actually exist, please use the guards
+  `ElixirMeta.Release.is_elixir_version/1`. For example:
+
+      iex> require ElixirMeta.Release
+      ...> elixir_version = "1.11.999"
+      ...> ElixirMeta.Release.is_elixir_version(elixir_version) and ElixirMeta.Compatibility.compatible?(elixir_version, 24)
+      false
 
   ## Examples
 
@@ -46,6 +58,9 @@ defmodule ElixirMeta.Compatibility do
       false
 
       iex> ElixirMeta.Compatibility.compatible?("1.11.4", 24)
+      true
+
+      iex> ElixirMeta.Compatibility.compatible?("1.11.999", 24)
       true
 
   """
@@ -230,7 +245,7 @@ defmodule ElixirMeta.Compatibility do
   end
 
   table =
-    ElixirMetaData.compatibility()
+    BeamLangsMetaData.compatibility(:elixir_otp)
     |> Enum.into(%{}, fn
       {elixir_version, otp_version} ->
         elixir_requirement = to_elixir_version_requirement(elixir_version)

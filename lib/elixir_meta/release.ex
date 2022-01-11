@@ -10,7 +10,7 @@ defmodule ElixirMeta.Release do
   @typedoc """
   A map that information related to a release in GitHub.
 
-  This information is originally provided by `t:ElixirMetaData.elixir_releases/0` and is transformed.
+  This information is originally provided by `BeamLangsMetaData.elixir_releases/0` and is transformed.
   """
   @type release_data :: %{
           ElixirMeta.elixir_version_key() => %{
@@ -66,47 +66,43 @@ defmodule ElixirMeta.Release do
   @minimal_elixir_version_requirement Version.parse_requirement!(">= 1.0.0")
 
   filter_asset = fn asset when is_map(asset) ->
-    {:ok, created_at, 0} = DateTime.from_iso8601(asset["created_at"])
+    {:ok, created_at, 0} = DateTime.from_iso8601(asset.created_at)
 
     %{
-      content_type: asset["content_type"],
+      content_type: asset.content_type,
       created_at: created_at,
-      id: asset["id"],
-      json_url: asset["url"],
-      name: asset["name"],
-      size: asset["size"],
-      state: asset["state"],
-      url: asset["browser_download_url"]
+      id: asset.id,
+      json_url: asset.url,
+      name: asset.name,
+      size: asset.size,
+      state: asset.state,
+      url: asset.browser_download_url
     }
   end
 
   release_data =
-    ElixirMetaData.elixir_releases()
+    BeamLangsMetaData.elixir_releases()
     |> Enum.reduce(%{}, fn elem, acc ->
-      version_string =
-        elem["tag_name"]
-        |> String.trim_leading("v")
-
-      version = Version.parse!(version_string)
-
-      if Version.match?(version, @minimal_elixir_version_requirement) do
-        {:ok, published_at, 0} = DateTime.from_iso8601(elem["published_at"])
-        {:ok, created_at, 0} = DateTime.from_iso8601(elem["created_at"])
-
+      with tag_name when is_binary(tag_name) <- elem[:tag_name],
+           version_string <- String.trim_leading(tag_name, "v"),
+           version <- Version.parse!(version_string),
+           true <- Version.match?(version, @minimal_elixir_version_requirement),
+           {:ok, published_at, 0} <- DateTime.from_iso8601(elem.published_at),
+           {:ok, created_at, 0} <- DateTime.from_iso8601(elem.created_at) do
         Map.put(acc, version_string, %{
-          assets: Enum.map(elem["assets"], &filter_asset.(&1)),
+          assets: Enum.map(elem.assets, &filter_asset.(&1)),
           created_at: created_at,
-          id: elem["id"],
-          json_url: elem["url"],
+          id: elem.id,
+          json_url: elem.url,
           prerelease?: version.pre != [],
           published_at: published_at,
-          tarball_url: elem["tarball_url"],
-          url: elem["html_url"],
+          tarball_url: elem.tarball_url,
+          url: elem.html_url,
           version: version,
-          zipball_url: elem["zipball_url"]
+          zipball_url: elem.zipball_url
         })
       else
-        acc
+        _ -> acc
       end
     end)
 

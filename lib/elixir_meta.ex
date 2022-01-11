@@ -7,14 +7,14 @@ defmodule ElixirMeta do
   - `ElixirMeta.Release`: all the information related to releases such as published versions,
     release condidates, latest Elixir version, etc.
 
-  Additionally, there is a sister library called `ElixirMetaData` which contains the udpated data used by
+  Additionally, there is a sister library called `BeamLangsMetaData` which contains the udpated data used by
   this library such as the compatibility tables, and release information.
   """
 
   @typedoc """
   It is a string that represents an Elixir version.
 
-  It does not necessarily need to be a full version, it could be `"MAJOR.MINOR"` or
+  It could be `"MAJOR.MINOR"` or a fully qualified version
   `"MAJOR.MINOR.PATCH"`, for example: `"1.2"` or `"1.2.3"`.
   """
   @type elixir_version_key :: String.t()
