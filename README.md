@@ -7,8 +7,10 @@ So far the library has the following submodules:
 - `ElixirMeta.Release`: all the information related to releases such as published versions,
   release condidates, latest Elixir version, etc.
 
-Additionally, there is a sister library called `ElixirMetaData` which contains the up-to-date data and one which
-this library builds on such as the compatibility tables, and release information.
+Additionally, there is a sister library called
+[BeamLangsMetaData](https://github.com/eksperimental/beam_langs_meta_data) which contains the
+up-to-date data and one which this library builds on such as the compatibility tables,
+and release information.
 
 
 ## Repository and Packages
@@ -39,6 +41,23 @@ Online documentation can be found at <https://hexdocs.pm/elixir_meta>
 ## Feature Requests
 
 Feel free to open up an issue <https://github.com/eksperimental/elixir_meta/issues> with your request.
+
+
+## Development
+
+Install the repository locally. You can run the validations by running:
+
+`mix validate` which is an alias for:
+
+- `mix format --check-formatted`
+- `mix deps.unlock --check-unused`
+- `mix compile --warnings-as-errors`
+- `mix dialyzer`
+- `mix docs`
+- `mix credo`
+
+Run tests by executing:
+`mix test`
 
 
 ## Future Plans
