@@ -1,10 +1,10 @@
-defmodule ElixirMeta do
+defmodule BeamMeta do
   @moduledoc """
-  `ElixirMeta` is a library to programmatically get a lot of information related to Elixir itself.
+  `BeamMeta` is a library to programmatically get a lot of information related to Elixir itself.
 
   So far the library has the following submodules:
-  - `ElixirMeta.Compatibility`: compatibility between Elixir and Erlang/OTP versions.
-  - `ElixirMeta.Release`: all the information related to releases such as published versions,
+  - `BeamMeta.Compatibility`: compatibility between Elixir and Erlang/OTP versions.
+  - `BeamMeta.Release`: all the information related to releases such as published versions,
     release condidates, latest Elixir version, etc.
 
   Additionally, there is a sister library called `BeamLangsMetaData` which contains the udpated data used by

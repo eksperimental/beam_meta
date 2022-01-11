@@ -1,4 +1,4 @@
-defmodule ElixirMetaTest do
+defmodule BeamMetaTest do
   use ExUnit.Case
-  doctest ElixirMeta
+  doctest BeamMeta
 end

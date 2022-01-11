@@ -1,13 +1,13 @@
 defmodule Release.Test do
   use ExUnit.Case, async: true
 
-  doctest ElixirMeta.Release
+  doctest BeamMeta.Release
   @min_version_count 85
   @min_release_count 65
   @min_prerelease_count 20
 
-  require ElixirMeta.Release
-  alias ElixirMeta.Release
+  require BeamMeta.Release
+  alias BeamMeta.Release
 
   test "is_elixir_prerelease/1" do
     assert Release.is_elixir_prerelease("1.13.0-rc.0") == true
@@ -59,7 +59,7 @@ defmodule Release.Test do
     assert Release.releases() |> Map.keys() |> Enum.sort(Version) |> List.first() == "1.0.0"
 
     version = Release.releases() |> Map.keys() |> Enum.sort(Version) |> List.last()
-    assert ElixirMeta.Util.to_version(version) == Release.latest_version()
+    assert BeamMeta.Util.to_version(version) == Release.latest_version()
   end
 
   test "release_data/0" do

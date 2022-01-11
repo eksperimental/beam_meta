@@ -1,4 +1,4 @@
-defmodule ElixirMeta.Release do
+defmodule BeamMeta.Release do
   @moduledoc """
   Functions for retrieving information related to Elixir releases.
 
@@ -13,7 +13,7 @@ defmodule ElixirMeta.Release do
   This information is originally provided by `BeamLangsMetaData.elixir_releases/0` and is transformed.
   """
   @type release_data :: %{
-          ElixirMeta.elixir_version_key() => %{
+          BeamMeta.elixir_version_key() => %{
             assets:
               nonempty_list(%{
                 content_type: String.t(),
@@ -135,13 +135,13 @@ defmodule ElixirMeta.Release do
   ## Examples
 
       iex> version = Version.parse!("1.13.0-rc.0")
-      ...> ElixirMeta.Release.is_elixir_prerelease(version)
+      ...> BeamMeta.Release.is_elixir_prerelease(version)
       true
 
-      iex> ElixirMeta.Release.is_elixir_prerelease("1.13.0-rc.0")
+      iex> BeamMeta.Release.is_elixir_prerelease("1.13.0-rc.0")
       true
 
-      iex> ElixirMeta.Release.is_elixir_prerelease("1.13.0")
+      iex> BeamMeta.Release.is_elixir_prerelease("1.13.0")
       false
 
   """
@@ -160,13 +160,13 @@ defmodule ElixirMeta.Release do
   ## Examples
 
       iex> version = Version.parse!("1.13.0")
-      ...> ElixirMeta.Release.is_elixir_release(version)
+      ...> BeamMeta.Release.is_elixir_release(version)
       true
 
-      iex> ElixirMeta.Release.is_elixir_release("1.13.0-rc.0")
+      iex> BeamMeta.Release.is_elixir_release("1.13.0-rc.0")
       false
 
-      iex> ElixirMeta.Release.is_elixir_release("1.11.10")
+      iex> BeamMeta.Release.is_elixir_release("1.11.10")
       false
 
   """
@@ -186,13 +186,13 @@ defmodule ElixirMeta.Release do
   ## Examples
 
       iex> version = Version.parse!("1.13.0")
-      ...> ElixirMeta.Release.is_elixir_version(version)
+      ...> BeamMeta.Release.is_elixir_version(version)
       true
 
-      iex> ElixirMeta.Release.is_elixir_version("1.13.0-rc.0")
+      iex> BeamMeta.Release.is_elixir_version("1.13.0-rc.0")
       true
 
-      iex> ElixirMeta.Release.is_elixir_version("1.11.10")
+      iex> BeamMeta.Release.is_elixir_version("1.11.10")
       false
 
   """
@@ -213,7 +213,7 @@ defmodule ElixirMeta.Release do
 
   ## Examples
 
-      > ElixirMeta.Release.prereleases()
+      > BeamMeta.Release.prereleases()
       %{
         "1.10.0-rc.0" => %{
           assets: [
@@ -271,7 +271,7 @@ defmodule ElixirMeta.Release do
 
   ## Examples
 
-      > ElixirMeta.Release.releases()
+      > BeamMeta.Release.releases()
       %{
           "1.12.1" => %{
             assets: [
@@ -330,7 +330,7 @@ defmodule ElixirMeta.Release do
 
   ## Examples
 
-      > ElixirMeta.Release.release_data()
+      > BeamMeta.Release.release_data()
       %{
         "1.12.1" => %{
           assets: [
@@ -383,7 +383,7 @@ defmodule ElixirMeta.Release do
 
   ## Examples
 
-      > ElixirMeta.Release.release_data("~> 1.12", allow_pre: false)
+      > BeamMeta.Release.release_data("~> 1.12", allow_pre: false)
       %{
         "1.12.1" => %{
           assets: [
@@ -443,7 +443,7 @@ defmodule ElixirMeta.Release do
 
   ## Examples:
 
-      > ElixirMeta.Release.versions()
+      > BeamMeta.Release.versions()
       [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
        #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
        #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
@@ -463,12 +463,12 @@ defmodule ElixirMeta.Release do
 
   ## Examples
 
-      > ElixirMeta.Release.versions(:release)
+      > BeamMeta.Release.versions(:release)
       [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
        #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
        #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
 
-      > ElixirMeta.Release.versions(:prerelease)
+      > BeamMeta.Release.versions(:prerelease)
       [#Version<1.3.0-rc.0>, #Version<1.3.0-rc.1>, #Version<1.4.0-rc.0>, #Version<1.4.0-rc.1>,
        #Version<1.5.0-rc.0>, #Version<1.5.0-rc.1>, #Version<1.5.0-rc.2>, #Version<1.6.0-rc.0>,
        #Version<1.6.0-rc.1>, #Version<1.7.0-rc.0>, #Version<1.7.0-rc.1>, #Version<1.8.0-rc.0>, ...]

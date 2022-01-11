@@ -1,4 +1,4 @@
-defmodule ElixirMeta.Compatibility.Util do
+defmodule BeamMeta.Compatibility.Util do
   @moduledoc false
 
   use BackPort

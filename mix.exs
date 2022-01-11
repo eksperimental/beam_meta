@@ -1,11 +1,11 @@
-defmodule ElixirMeta.MixProject do
+defmodule BeamMeta.MixProject do
   use Mix.Project
 
-  @repo_url "https://github.com/eksperimental/elixir_meta"
+  @repo_url "https://github.com/eksperimental/beam_meta"
 
   def project do
     [
-      app: :elixir_meta,
+      app: :beam_meta,
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
@@ -16,12 +16,12 @@ defmodule ElixirMeta.MixProject do
       deps: deps(),
 
       # Docs
-      name: "ElixirMeta",
+      name: "BeamMeta",
       source_url: @repo_url,
       homepage_url: @repo_url,
       docs: [
         # The main page in the docs
-        main: "ElixirMeta",
+        main: "BeamMeta",
         # logo: "path/to/logo.png",
         extras: [
           "README.md": [filename: "readme", title: "Readme"],

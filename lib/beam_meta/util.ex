@@ -1,4 +1,4 @@
-defmodule ElixirMeta.Util do
+defmodule BeamMeta.Util do
   @moduledoc false
 
   def to_version(term)
