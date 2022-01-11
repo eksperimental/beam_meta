@@ -41,7 +41,15 @@ defmodule ElixirMeta.MixProject do
 
   defp aliases do
     [
-      validate: ["format --check-formatted", "dialyzer", "docs", "credo"]
+      validate: [
+        "format --check-formatted",
+        "deps.unlock --check-unused",
+        "compile",
+        "compile --warnings-as-errors",
+        "dialyzer",
+        "docs",
+        "credo --ignore Credo.Check.Design.TagTODO"
+      ]
     ]
   end
 
@@ -63,8 +71,9 @@ defmodule ElixirMeta.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elixir_meta_data,
-       git: "https://github.com/eksperimental/elixir_meta_data.git", branch: "main"},
+      {:beam_langs_meta_data,
+       git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
+      # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.26", only: :dev, runtime: false}
