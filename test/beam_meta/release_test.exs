@@ -9,6 +9,23 @@ defmodule Release.Test do
   require BeamMeta.Release
   alias BeamMeta.Release
 
+  defp mapper({key, _value}) do
+    key
+    |> Atom.to_string()
+    |> Version.parse!()
+  end
+
+  defp get(keyword, ordinal) when is_atom(ordinal) do
+    keyword
+    |> Enum.sort_by(&mapper/1, Version)
+    |> get_ordinal(ordinal)
+    |> elem(0)
+    |> to_string()
+  end
+
+  defp get_ordinal(list, :first), do: List.first(list)
+  defp get_ordinal(list, :last), do: List.last(list)
+
   test "is_elixir_prerelease/1" do
     assert Release.is_elixir_prerelease("1.13.0-rc.0") == true
     assert Release.is_elixir_prerelease("1.13.0-rc.3") == false
@@ -51,28 +68,27 @@ defmodule Release.Test do
   end
 
   test "prereleases/0" do
-    assert Release.prereleases() |> Map.keys() |> Enum.sort(Version) |> List.first() ==
-             "1.3.0-rc.0"
+    assert Release.prereleases() |> get(:first) == "1.3.0-rc.0"
   end
 
   test "releases/0" do
-    assert Release.releases() |> Map.keys() |> Enum.sort(Version) |> List.first() == "1.0.0"
+    assert Release.releases() |> get(:first) == "1.0.0"
 
-    version = Release.releases() |> Map.keys() |> Enum.sort(Version) |> List.last()
+    version = Release.releases() |> get(:last)
     assert BeamMeta.Util.to_version(version) == Release.latest_version()
   end
 
   test "release_data/0" do
-    assert Release.release_data() |> Map.has_key?("1.0.0") == true
-    assert Release.release_data() |> Map.has_key?("1.13.0-rc.1") == true
-    assert Release.release_data() |> Map.has_key?("1.13.0") == true
+    assert Release.release_data() |> Keyword.has_key?(:"1.0.0") == true
+    assert Release.release_data() |> Keyword.has_key?(:"1.13.0-rc.1") == true
+    assert Release.release_data() |> Keyword.has_key?(:"1.13.0") == true
     assert Release.release_data() |> Enum.count() >= @min_version_count
   end
 
   test "release_data/1" do
-    assert Release.release_data("~> 1.12") |> Map.has_key?("1.13.0-rc.1") == true
+    assert Release.release_data("~> 1.12") |> Keyword.has_key?(:"1.13.0-rc.1") == true
 
-    assert Release.release_data("~> 1.12", allow_pre: false) |> Map.has_key?("1.13.0-rc.1") ==
+    assert Release.release_data("~> 1.12", allow_pre: false) |> Keyword.has_key?(:"1.13.0-rc.1") ==
              false
   end
 

@@ -12,30 +12,32 @@ defmodule BeamMeta.Release do
 
   This information is originally provided by `BeamLangsMetaData.elixir_releases/0` and is transformed.
   """
-  @type release_data :: %{
-          BeamMeta.elixir_version_key() => %{
-            assets:
-              nonempty_list(%{
-                content_type: String.t(),
-                created_at: DateTime.t(),
-                id: non_neg_integer(),
-                json_url: String.t(),
-                name: String.t(),
-                size: non_neg_integer(),
-                state: String.t(),
-                url: String.t()
-              }),
-            created_at: DateTime.t(),
-            id: non_neg_integer(),
-            json_url: String.t(),
-            prerelease?: boolean(),
-            published_at: DateTime.t(),
-            tarball_url: String.t(),
-            url: String.t(),
-            version: Version.t(),
-            zipball_url: String.t()
-          }
-        }
+  @type release_data ::
+          BeamMeta.Util.nonempty_keyword(
+            elixir_version_key :: atom(),
+            %{
+              assets:
+                nonempty_list(%{
+                  content_type: String.t(),
+                  created_at: DateTime.t(),
+                  id: non_neg_integer(),
+                  json_url: String.t(),
+                  name: String.t(),
+                  size: non_neg_integer(),
+                  state: String.t(),
+                  url: String.t()
+                }),
+              created_at: DateTime.t(),
+              id: non_neg_integer(),
+              json_url: String.t(),
+              prerelease?: boolean(),
+              published_at: DateTime.t(),
+              tarball_url: String.t(),
+              url: String.t(),
+              version: Version.t(),
+              zipball_url: String.t()
+            }
+          )
 
   @typedoc """
   Whether the release is a prerelease or a final release.
@@ -82,14 +84,14 @@ defmodule BeamMeta.Release do
 
   release_data =
     BeamLangsMetaData.elixir_releases()
-    |> Enum.reduce(%{}, fn elem, acc ->
+    |> Enum.reduce([], fn elem, acc ->
       with tag_name when is_binary(tag_name) <- elem[:tag_name],
            version_string <- String.trim_leading(tag_name, "v"),
            version <- Version.parse!(version_string),
            true <- Version.match?(version, @minimal_elixir_version_requirement),
            {:ok, published_at, 0} <- DateTime.from_iso8601(elem.published_at),
            {:ok, created_at, 0} <- DateTime.from_iso8601(elem.created_at) do
-        Map.put(acc, version_string, %{
+        Keyword.put(acc, String.to_atom(version_string), %{
           assets: Enum.map(elem.assets, &filter_asset.(&1)),
           created_at: created_at,
           id: elem.id,
@@ -256,10 +258,10 @@ defmodule BeamMeta.Release do
   @spec prereleases() :: release_data()
   def prereleases() do
     # TODO: Replace with Map.filter/2 when Elixir v1.13 is exclusively supported
-    Enum.reduce(release_data(), %{}, fn
+    Enum.reduce(release_data(), [], fn
       {k, map}, acc ->
         if map.prerelease? do
-          Map.put(acc, k, map)
+          Keyword.put(acc, k, map)
         else
           acc
         end
@@ -313,12 +315,12 @@ defmodule BeamMeta.Release do
   @spec releases() :: release_data()
   def releases() do
     # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
-    Enum.reduce(release_data(), %{}, fn
+    Enum.reduce(release_data(), [], fn
       {k, map}, acc ->
         if map.prerelease? do
           acc
         else
-          Map.put(acc, k, map)
+          Keyword.put(acc, k, map)
         end
     end)
   end
@@ -426,10 +428,10 @@ defmodule BeamMeta.Release do
   def release_data(elixir_version_requirement, options \\ [])
       when is_version_requirement(elixir_version_requirement) do
     # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
-    Enum.reduce(release_data(), %{}, fn
+    Enum.reduce(release_data(), [], fn
       {k, map}, acc ->
         if Version.match?(map.version, elixir_version_requirement, options) do
-          Map.put(acc, k, map)
+          Keyword.put(acc, k, map)
         else
           acc
         end

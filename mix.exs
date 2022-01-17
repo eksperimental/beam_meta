@@ -49,6 +49,20 @@ defmodule BeamMeta.MixProject do
         "dialyzer",
         "docs",
         "credo --ignore Credo.Check.Design.TagTODO"
+      ],
+      all: [
+        "format",
+        "validate",
+        fn _args ->
+          case System.cmd("mix", ~w[test]) do
+            {_, 0} ->
+              true
+
+            {output, _} ->
+              IO.puts(output)
+              raise("Test failed.")
+          end
+        end
       ]
     ]
   end
