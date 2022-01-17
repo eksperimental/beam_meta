@@ -1,6 +1,7 @@
 defmodule BeamMeta.MixProject do
   use Mix.Project
 
+  @name "BeamMeta"
   @repo_url "https://github.com/eksperimental/beam_meta"
 
   def project do
@@ -16,19 +17,10 @@ defmodule BeamMeta.MixProject do
       deps: deps(),
 
       # Docs
-      name: "BeamMeta",
+      name: @name,
       source_url: @repo_url,
       homepage_url: @repo_url,
-      docs: [
-        # The main page in the docs
-        main: "BeamMeta",
-        # logo: "path/to/logo.png",
-        extras: [
-          "README.md": [filename: "readme", title: "Readme"],
-          "LICENSE.md": [filename: "license", title: "License"]
-        ],
-        source_ref: revision()
-      ]
+      docs: docs()
     ]
   end
 
@@ -70,11 +62,11 @@ defmodule BeamMeta.MixProject do
   defp package do
     [
       maintainers: ["Eksperimental"],
-      licenses: ["MIT"],
+      licenses: ["CC0-1.0", "MIT-0", "0BSD"],
       links: %{"GitHub" => @repo_url},
       files: ~w(
           lib/
-          LICENSE.md
+          LICENSES/
           mix.exs
           README.md
           .formatter.exs
@@ -90,7 +82,41 @@ defmodule BeamMeta.MixProject do
       # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.26", only: :dev, runtime: false}
+      # {:ex_doc, "~> 0.26", only: :dev, runtime: false}
+      {:ex_doc, git: "https://github.com/elixir-lang/ex_doc.git", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      # The main page in the docs
+      main: @name,
+      extras: [
+        "README.md": [filename: "readme", title: "Readme"],
+        # "NOTICE": [filename: "notice", title: "Notice"],
+        "LICENSES/LICENSE.CC0-1.0.txt": [
+          filename: "license_CC0-1.0",
+          title: "Creative Commons Zero Universal version 1.0 license"
+        ],
+        "LICENSES/LICENSE.MIT-0.txt": [
+          filename: "license_MIT-0",
+          title: "MIT No Attribution License"
+        ],
+        "LICENSES/LICENSE.0BSD.txt": [
+          filename: "license_0BSD",
+          title: "BSD Zero Clause License"
+        ]
+      ],
+      groups_for_modules: [
+        "Release": [
+          BeamMeta.Release,
+          BeamMeta.Release.Elixir,
+        ]
+      ],
+      groups_for_extras: [
+        "Licenses": ~r{LICENSES/}
+      ],
+      source_ref: revision()
     ]
   end
 
