@@ -1,4 +1,4 @@
-defmodule BeamData.Release.Test do
+defmodule BeamMeta.Release.Test do
   use ExUnit.Case, async: true
 
   doctest BeamMeta.Release
