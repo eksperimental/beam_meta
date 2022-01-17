@@ -11,7 +11,7 @@ defmodule BeamMeta.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       description:
-        "A library to programmatically retrieve information related to the Elixir language.",
+        "A library to programmatically retrieve information related to the BEAM languages.",
       aliases: aliases(),
       package: package(),
       deps: deps(),
@@ -42,21 +42,29 @@ defmodule BeamMeta.MixProject do
         "docs",
         "credo --ignore Credo.Check.Design.TagTODO"
       ],
-      all: [
+      prepare: [
         "format",
+        "deps.clean --unused --unlock"
+      ],
+      all: [
+        "prepare",
         "validate",
-        fn _args ->
-          case System.cmd("mix", ~w[test]) do
-            {_, 0} ->
-              true
-
-            {output, _} ->
-              IO.puts(output)
-              raise("Test failed.")
-          end
-        end
+        test_isolated()
       ]
     ]
+  end
+
+  defp test_isolated() do
+    fn _args ->
+      case System.cmd("mix", ~w[test]) do
+        {_, 0} ->
+          true
+
+        {output, _} ->
+          IO.puts(output)
+          raise("Test failed.")
+      end
+    end
   end
 
   defp package do
