@@ -1,17 +1,18 @@
 defmodule BeamMeta.MixProject do
   use Mix.Project
 
+  @app :beam_meta
   @name "BeamMeta"
+  @description "A library to programmatically retrieve information related to the BEAM languages"
   @repo_url "https://github.com/eksperimental/beam_meta"
 
   def project do
     [
-      app: :beam_meta,
+      app: @app,
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
-      description:
-        "A library to programmatically retrieve information related to the BEAM languages.",
+      description: @description,
       aliases: aliases(),
       package: package(),
       deps: deps(),
@@ -44,9 +45,15 @@ defmodule BeamMeta.MixProject do
       ],
       prepare: [
         "format",
-        "deps.clean --unused --unlock"
+        "deps.clean --unused --unlock",
+        "deps.unlock --unsued"
+      ],
+      setup: [
+        "deps.get",
+        "deps.update --all"
       ],
       all: [
+        "setup",
         "prepare",
         "validate",
         test_isolated()
@@ -75,9 +82,10 @@ defmodule BeamMeta.MixProject do
       files: ~w(
           lib/
           LICENSES/
+          priv/
+          .formatter.exs
           mix.exs
           README.md
-          .formatter.exs
         )
     ]
   end
@@ -104,7 +112,7 @@ defmodule BeamMeta.MixProject do
         # "NOTICE": [filename: "notice", title: "Notice"],
         "LICENSES/LICENSE.CC0-1.0.txt": [
           filename: "license_CC0-1.0",
-          title: "Creative Commons Zero Universal version 1.0 license"
+          title: "Creative Commons Zero Universal version 1.0 License"
         ],
         "LICENSES/LICENSE.MIT-0.txt": [
           filename: "license_MIT-0",
@@ -116,13 +124,13 @@ defmodule BeamMeta.MixProject do
         ]
       ],
       groups_for_modules: [
-        "Release": [
+        Release: [
           BeamMeta.Release,
-          BeamMeta.Release.Elixir,
+          BeamMeta.Release.Elixir
         ]
       ],
       groups_for_extras: [
-        "Licenses": ~r{LICENSES/}
+        Licenses: ~r{LICENSES/}
       ],
       source_ref: revision()
     ]

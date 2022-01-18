@@ -245,7 +245,7 @@ defmodule BeamMeta.Compatibility do
   end
 
   table =
-    BeamLangsMetaData.compatibility(:elixir_otp)
+    BeamLangsMetaData.compatibility({:elixir, :otp})
     |> Enum.into(%{}, fn
       {elixir_version, otp_version} ->
         elixir_requirement = to_elixir_version_requirement(elixir_version)
