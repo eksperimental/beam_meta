@@ -1,12 +1,11 @@
 defmodule BeamMeta.Release.Elixir.Test do
   use ExUnit.Case, async: true
 
-  doctest BeamMeta.Release
+  doctest BeamMeta.Release.Elixir
   @min_version_count 85
   @min_release_count 65
   @min_prerelease_count 20
 
-  require BeamMeta.Release
   alias BeamMeta.Release
 
   defp mapper({key, _value}) do

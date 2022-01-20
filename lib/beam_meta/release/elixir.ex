@@ -129,7 +129,7 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples
 
-      > BeamMeta.Release.prereleases()
+      > BeamMeta.Release.Elixir.prereleases()
       %{
         "1.10.0-rc.0" => %{
           assets: [
@@ -187,7 +187,7 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples
 
-      > BeamMeta.Release.releases()
+      > BeamMeta.Release.Elixir.releases()
       %{
           "1.12.1" => %{
             assets: [
@@ -246,7 +246,7 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples
 
-      > BeamMeta.Release.release_data()
+      > BeamMeta.Release.Elixir.release_data()
       %{
         "1.12.1" => %{
           assets: [
@@ -299,7 +299,7 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples
 
-      > BeamMeta.Release.release_data("~> 1.12", allow_pre: false)
+      > BeamMeta.Release.Elixir.release_data("~> 1.12", allow_pre: false)
       %{
         "1.12.1" => %{
           assets: [
@@ -359,7 +359,7 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples:
 
-      > BeamMeta.Release.versions()
+      > BeamMeta.Release.Elixir.versions()
       [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
        #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
        #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
@@ -379,12 +379,12 @@ defmodule BeamMeta.Release.Elixir do
 
   ## Examples
 
-      > BeamMeta.Release.versions(:release)
+      > BeamMeta.Release.Elixir.versions(:release)
       [#Version<1.0.0>, #Version<1.0.1>, #Version<1.0.2>, #Version<1.0.3>, #Version<1.0.4>,
        #Version<1.0.5>, #Version<1.1.0>, #Version<1.1.1>, #Version<1.2.0>, #Version<1.2.1>,
        #Version<1.2.2>, #Version<1.2.3>, #Version<1.2.4>, #Version<1.2.5>, #Version<1.2.6>, ...]
 
-      > BeamMeta.Release.versions(:prerelease)
+      > BeamMeta.Release.Elixir.versions(:prerelease)
       [#Version<1.3.0-rc.0>, #Version<1.3.0-rc.1>, #Version<1.4.0-rc.0>, #Version<1.4.0-rc.1>,
        #Version<1.5.0-rc.0>, #Version<1.5.0-rc.1>, #Version<1.5.0-rc.2>, #Version<1.6.0-rc.0>,
        #Version<1.6.0-rc.1>, #Version<1.7.0-rc.0>, #Version<1.7.0-rc.1>, #Version<1.8.0-rc.0>, ...]

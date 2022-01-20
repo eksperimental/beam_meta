@@ -45,16 +45,11 @@ Feel free to open up an issue <https://github.com/eksperimental/beam_meta/issues
 
 ## Development
 
-Install the repository locally. You can run the validations by running:
+Run `git clone` install the repository locally. You can run the following tasks by running:
 
-`mix validate` which is an alias for:
-
-- `mix format --check-formatted`
-- `mix deps.unlock --check-unused`
-- `mix compile --warnings-as-errors`
-- `mix dialyzer`
-- `mix docs`
-- `mix credo`
+- `mix setup`
+- `mix validate`
+- `mix all`
 
 Run tests by executing:
 `mix test`
@@ -62,7 +57,7 @@ Run tests by executing:
 
 ## Future Plans
 
-I am planning to include the information for all Erlang/OTP releases, same as we do for Elixir.
+I am planning to include more functions in the Erlang/OTP releases, same as we do for Elixir.
 
 ## Contact
 

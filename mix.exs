@@ -20,7 +20,7 @@ defmodule BeamMeta.MixProject do
       # Docs
       name: @name,
       source_url: @repo_url,
-      homepage_url: @repo_url,
+      # homepage_url: @repo_url,
       docs: docs()
     ]
   end
@@ -126,7 +126,8 @@ defmodule BeamMeta.MixProject do
       groups_for_modules: [
         Release: [
           BeamMeta.Release,
-          BeamMeta.Release.Elixir
+          BeamMeta.Release.Elixir,
+          BeamMeta.Release.Otp
         ]
       ],
       groups_for_extras: [
