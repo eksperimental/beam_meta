@@ -1,7 +1,7 @@
 defmodule BeamMeta.Util do
   @moduledoc false
 
-  @spec to_version(BeamMeta.version_representation() | non_neg_integer()) :: Version.t()
+  @spec to_version(BeamMeta.elixir_version_representation() | non_neg_integer()) :: Version.t()
 
   def to_version(version) when is_integer(version) do
     Version.parse!("#{version}.0.0")

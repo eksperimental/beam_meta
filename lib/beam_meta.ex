@@ -12,11 +12,6 @@ defmodule BeamMeta do
   """
 
   @typedoc """
-  A non-empty keyword list.
-  """
-  @type nonempty_keyword(value_type) :: nonempty_list({atom(), value_type})
-
-  @typedoc """
   A non-empty keyword list with `key_type` specified.
 
   For example: `nonempty_keyword(version :: atom(), map())`.
@@ -39,9 +34,9 @@ defmodule BeamMeta do
   @type otp_version_key :: non_neg_integer
 
   @typedoc """
-  Either a `t:Version.t/0` or a string representation of it.
+  An Elixir version in either a `t:Version.t/0` format or a string representation of it.
   """
-  @type version_representation :: Version.t() | String.t()
+  @type elixir_version_representation :: Version.t() | String.t()
 
   @typedoc """
   Whether the release is a prerelease or a final release.

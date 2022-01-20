@@ -19,7 +19,7 @@ defmodule BeamMeta.Compatibility do
   - a `t:Version.t/0` or string representation of this one, for example: `#Version<1.13.0>` or `"1.13.0"`.
 
   """
-  @type elixir_version :: BeamMeta.elixir_version_key() | BeamMeta.version_representation()
+  @type elixir_version :: BeamMeta.elixir_version_key() | BeamMeta.elixir_version_representation()
 
   @typedoc """
   Represents an Erlang/OTP version.
@@ -29,7 +29,7 @@ defmodule BeamMeta.Compatibility do
   - Ian integer that represents the Erlang/OTP major version, for example: `24`.
   - a `t:Version.t/0` or string representation of this one, for example: `#Version<24.0.0>` or `"24.0.0"`.
   """
-  @type otp_version :: BeamMeta.otp_version_key() | BeamMeta.version_representation()
+  @type otp_version :: BeamMeta.otp_version_key() | BeamMeta.elixir_version_representation()
 
   @doc """
   Determines whether the given Elixir and Elang/OTP versions are compatible.
@@ -272,21 +272,20 @@ defmodule BeamMeta.Compatibility do
   Returns a map with the compatibility table.
 
   Note that this is not a table that contains every release, but
-  a table that represent the MAJOR.MINOR and eventually the MAJO.MINOR.PATCH releases listed in the page
+  a table that represent the MAJOR.MINOR and eventually the MAJOR.MINOR.PATCH releases listed in the page
   [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
   """
   @spec table() :: %{
-          elixir_version_key => %{
+          BeamMeta.elixir_version_key() => %{
             version: Version.t(),
             version_requirement: Version.Requirement.t(),
             otp_versions: %{
-              otp_version_key => %{
+              BeamMeta.otp_version_key() => %{
                 version: Version.t(),
                 version_requirement: Version.Requirement.t()
               }
             }
           }
         }
-        when elixir_version_key: String.t(), otp_version_key: non_neg_integer()
   def table(), do: @table
 end
