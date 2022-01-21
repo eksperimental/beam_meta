@@ -6,6 +6,7 @@ defmodule BeamMeta.Release.Otp do
   """
 
   use BackPort
+  import BeamMeta.Util, only: [to_version!: 1]
 
   @type asset :: :doc_html | :doc_man | :win32 | :win64
 
@@ -37,7 +38,7 @@ defmodule BeamMeta.Release.Otp do
 
   For example: `24.2`.
   """
-  @type version :: String.t()
+  @type version :: Version.t()
 
   build_assets = fn elem ->
     keys = [:doc_html, :doc_man, :win32, :win64, :readme]
@@ -74,13 +75,13 @@ defmodule BeamMeta.Release.Otp do
               %{
                 assets: build_assets.(elem),
                 url: elem.release_url,
-                version: version_string,
+                version: to_version!(version_string),
                 published_at: published_at,
                 latest?: latest_version == version_string
               }
             else
               %{
-                version: version_string,
+                version: to_version!(version_string),
                 published_at: published_at,
                 latest?: latest_version == version_string
               }
@@ -96,7 +97,7 @@ defmodule BeamMeta.Release.Otp do
     |> List.flatten()
     |> Enum.sort()
 
-  @versions Enum.map(release_data, fn {_k, map} -> map[:version] end)
+  @versions Enum.map(release_data, fn {_k, map} -> to_version!(map[:version]) end)
             |> Enum.sort_by(& &1, :asc)
 
   # @prerelease_versions release_data
@@ -106,7 +107,7 @@ defmodule BeamMeta.Release.Otp do
 
   @release_versions release_data
                     # |> Enum.reject(fn {_k, map} -> map.prerelease? end)
-                    |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
+                    |> Enum.map(fn {_k, map} -> Map.get(map, :version) |> to_version!() end)
                     |> Enum.sort_by(& &1, :asc)
 
   @latest_version Enum.max(@release_versions)
@@ -198,4 +199,29 @@ defmodule BeamMeta.Release.Otp do
   """
   @spec versions() :: [version, ...]
   def versions(), do: @versions
+
+  @doc """
+  Convert an Erlang/OTP version to the original string representation.
+
+  ## Examples
+
+      iex> Version.parse!("23.3.4-10") |> BeamMeta.Release.Otp.to_original_string()
+      "23.3.4.10"
+
+      iex> Version.parse!("23.3.4-10.3") |> BeamMeta.Release.Otp.to_original_string()
+      "23.3.4.10.3"
+
+      iex> Version.parse!("25.0.0-rc0") |> BeamMeta.Release.Otp.to_original_string()
+      "25.0.0-rc0"
+  """
+  @spec to_original_string(Version.t()) :: String.t()
+  def to_original_string(%Version{} = version) do
+    version_string = to_string(version)
+
+    if String.match?(version_string, ~R/^\d+\.\d+\.\d+-\d/) do
+      String.replace(version_string, "-", ".", global: false)
+    else
+      version_string
+    end
+  end
 end

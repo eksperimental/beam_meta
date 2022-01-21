@@ -5,6 +5,7 @@ defmodule BeamMeta.Release.Test do
 
   require BeamMeta.Release
   alias BeamMeta.Release
+  import BeamMeta.Util, only: [to_version!: 1]
 
   test "is_elixir_prerelease/1" do
     assert Release.is_elixir_prerelease("1.13.0-rc.0") == true
@@ -49,5 +50,12 @@ defmodule BeamMeta.Release.Test do
     assert Release.is_otp_version("20.3.8.26") == true
     assert Release.is_otp_version("20.3.8.27") == false
     assert Release.is_otp_version("24.2") == true
+
+    assert Release.is_otp_version(to_version!("17.0")) == true
+    assert Release.is_otp_version(to_version!("17.99")) == false
+    assert Release.is_otp_version(to_version!("20.3.8.25")) == true
+    assert Release.is_otp_version(to_version!("20.3.8.26")) == true
+    assert Release.is_otp_version(to_version!("20.3.8.27")) == false
+    assert Release.is_otp_version(to_version!("24.2")) == true
   end
 end

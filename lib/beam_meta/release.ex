@@ -7,6 +7,9 @@ defmodule BeamMeta.Release do
 
   use BackPort
 
+  #######################################
+  # Elixir
+
   elixir_release_data = BeamMeta.Release.Elixir.release_data()
 
   @elixir_versions elixir_release_data
@@ -23,7 +26,7 @@ defmodule BeamMeta.Release do
                            |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
                            |> Enum.sort_by(& &1, {:asc, Version})
 
-  versions_to_strings = fn list ->
+  elixir_versions_to_strings = fn list ->
     for version <- list do
       "#{version}"
     end
@@ -52,7 +55,7 @@ defmodule BeamMeta.Release do
   defguard is_elixir_prerelease(version)
            when (is_struct(version, Version) and version in @elixir_prerelease_versions) or
                   (is_binary(version) and
-                     version in unquote(versions_to_strings.(@elixir_prerelease_versions)))
+                     version in unquote(elixir_versions_to_strings.(@elixir_prerelease_versions)))
 
   @doc """
   Returns `true` if `version` is an existing Elixir final release. Otherwise it returns `false`.
@@ -77,7 +80,7 @@ defmodule BeamMeta.Release do
   defguard is_elixir_release(version)
            when (is_struct(version, Version) and version in @elixir_release_versions) or
                   (is_binary(version) and
-                     version in unquote(versions_to_strings.(@elixir_release_versions)))
+                     version in unquote(elixir_versions_to_strings.(@elixir_release_versions)))
 
   @doc """
   Returns `true` if `version` is an existing Elixir version, whether it is a final release or a release candidate.
@@ -103,7 +106,24 @@ defmodule BeamMeta.Release do
   defguard is_elixir_version(version)
            when (is_struct(version, Version) and version in @elixir_versions) or
                   (is_binary(version) and
-                     version in unquote(versions_to_strings.(@elixir_versions)))
+                     version in unquote(elixir_versions_to_strings.(@elixir_versions)))
+
+  #######################################
+  # OTP
+
+  otp_versions_to_strings = fn list ->
+    major_minor =
+      for version <- list, uniq: true do
+        "#{version.major}.#{version.minor}"
+      end
+
+    versions =
+      for version <- list do
+        BeamMeta.Release.Otp.to_original_string(version)
+      end
+
+    major_minor ++ versions
+  end
 
   @otp_versions BeamMeta.Release.Otp.release_data()
                 |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
@@ -122,9 +142,15 @@ defmodule BeamMeta.Release do
       iex> BeamMeta.Release.is_otp_version("21.0")
       true
 
+      iex> BeamMeta.Release.is_otp_version("21.0.0")
+      true
+
       iex> BeamMeta.Release.is_otp_version("10.0")
       false
 
   """
-  defguard is_otp_version(version) when is_binary(version) and version in @otp_versions
+  defguard is_otp_version(version)
+           when (is_struct(version, Version) and version in @otp_versions) or
+                  (is_binary(version) and
+                     version in unquote(otp_versions_to_strings.(@otp_versions)))
 end

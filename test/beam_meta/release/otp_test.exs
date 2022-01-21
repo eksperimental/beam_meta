@@ -23,7 +23,7 @@ defmodule BeamMeta.Release.Otp.Test do
   defp get_ordinal(list, :last), do: List.last(list)
 
   test "latest_version/0" do
-    assert Release.Otp.latest_version() >= "24.2"
+    assert Version.compare(Release.Otp.latest_version(), "24.2.0") in [:gt, :eq]
     assert Release.Otp.latest_version() == Release.Otp.versions() |> List.last()
   end
 
@@ -36,7 +36,13 @@ defmodule BeamMeta.Release.Otp.Test do
   end
 
   test "versions/0" do
-    assert Release.Otp.versions() |> List.first() == "17.0"
+    assert Release.Otp.versions() |> List.first() == Version.parse!("17.0.0")
     assert Release.Otp.versions() |> List.last() == Release.Otp.latest_version()
+  end
+
+  test "to_original_string/1" do
+    assert Version.parse!("23.3.4-10") |> Release.Otp.to_original_string() == "23.3.4.10"
+    assert Version.parse!("25.0.0-rc0") |> Release.Otp.to_original_string() == "25.0.0-rc0"
+    assert Version.parse!("23.3.4") |> Release.Otp.to_original_string() == "23.3.4"
   end
 end
