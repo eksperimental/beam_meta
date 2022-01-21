@@ -1,14 +1,14 @@
 defmodule BeamMeta do
   @moduledoc """
-  `BeamMeta` is a library to programmatically get a lot of information related to Beam languages.
+  `BeamMeta` is a library to programmatically get information related to Beam languages.
 
-  So far the library has the following submodules:
+  So far the library has the following modules:
   - `BeamMeta.Compatibility.OtpElixir`: compatibility between Elixir and Erlang/OTP versions.
   - `BeamMeta.Release`, `BeamMeta.Release.Elixir`, `BeamMeta.Release.Otp`: all the information related to releases such as published versions,
     release condidates, latest Elixir version, etc.
 
-  Additionally, there is a sister library called `BeamLangsMetaData` which contains the udpated data used by
-  this library such as the compatibility tables, and release information.
+  Additionally, there is a parent library called `BeamLangsMetaData` which contains the udpated data used by
+  this library such as the compatibility tables, and release information, and this library is based on.
   """
 
   @typedoc """
@@ -41,7 +41,12 @@ defmodule BeamMeta do
   @typedoc """
   An Erlang/OTP version in either a string or an `t:Version.t/0`.
 
-  For example: `"24.2"`.
+  A note on Erlang/OTP versions:
+  The format for these versions does not align with SemVer versions, which is the format supported by 
+  the Elixir `Version` module.
+
+  In order to offer the benefits of interoperability with the Elixir language, we convert these versions to `v:Version.t/0`,
+  so for example the version "23.3.4.10", we convert it to version `#Version<23.3.4-10>`.
   """
   @type otp_version_representation :: Version.t() | String.t()
 
