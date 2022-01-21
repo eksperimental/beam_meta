@@ -1,14 +1,14 @@
-defmodule BeamMeta.Compatibility do
+defmodule BeamMeta.Compatibility.OtpElixir do
   @moduledoc """
-  Compatibility between Elixir and OTP.
+  Compatibility between Erlang/OTP and Elixir.
 
-  Main documentation page: [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
+  Main documentation page:
+  [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
   """
 
   use BackPort
 
-  import BeamMeta.Compatibility.Util, only: [to_elixir_version_requirement: 1]
-  import BeamMeta.Util, only: [to_version: 1]
+  import BeamMeta.Util, only: [to_version!: 1, to_version_requirement: 1]
 
   @typedoc """
   Represents an Elixir version.
@@ -26,59 +26,59 @@ defmodule BeamMeta.Compatibility do
 
   It could be:
 
-  - Ian integer that represents the Erlang/OTP major version, for example: `24`.
+  - an integer that represents the Erlang/OTP major version, for example: `24`.
   - a `t:Version.t/0` or string representation of this one, for example: `#Version<24.0.0>` or `"24.0.0"`.
   """
-  @type otp_version :: BeamMeta.otp_version_key() | BeamMeta.elixir_version_representation()
+  @type otp_version :: BeamMeta.otp_version_key() | BeamMeta.otp_version_representation()
 
   @doc """
-  Determines whether the given Elixir and Elang/OTP versions are compatible.
+  Determines whether the given Elang/OTP and Elixir versions are compatible.
 
   The results are based on the [compatibility table](`table/0`). This function does not check
   that the Elixir and Erlang/OTP actually exists.
 
   `elixir_version` can be a `t:Version.t/0` or a string.
   `otp_version` can be  a `t:Version.t/0`, a string or an integer.
-  `BeamMeta.Compatibility.compatible?("1.11.999", 24)` will return `true` since
+  `BeamMeta.Compatibility.OtpElixir.compatible?("1.11.999", 24)` will return `true` since
   Elixir v1.11 is compatible with OTP 24. If you want to make sure the Elixir
   version actually exist, please use the guards
   `BeamMeta.Release.is_elixir_version/1`. For example:
 
       iex> require BeamMeta.Release
       ...> elixir_version = "1.11.999"
-      ...> BeamMeta.Release.is_elixir_version(elixir_version) and BeamMeta.Compatibility.compatible?(elixir_version, 24)
+      ...> BeamMeta.Release.is_elixir_version(elixir_version) and BeamMeta.Compatibility.OtpElixir.compatible?(24, elixir_version)
       false
 
   ## Examples
 
-      iex> BeamMeta.Compatibility.compatible?("1.13", 24)
+      iex> BeamMeta.Compatibility.OtpElixir.compatible?(24, "1.13")
       true
 
-      iex> BeamMeta.Compatibility.compatible?("1.11", 24)
+      iex> BeamMeta.Compatibility.OtpElixir.compatible?(24, "1.11")
       false
 
-      iex> BeamMeta.Compatibility.compatible?("1.11.4", 24)
+      iex> BeamMeta.Compatibility.OtpElixir.compatible?(24, "1.11.4")
       true
 
-      iex> BeamMeta.Compatibility.compatible?("1.11.999", 24)
+      iex> BeamMeta.Compatibility.OtpElixir.compatible?(24, "1.11.999")
       true
 
   """
-  @spec compatible?(elixir_version(), otp_version()) :: boolean
-  def compatible?(%Version{} = elixir_version, %Version{} = otp_version) do
+  @spec compatible?(otp_version(), elixir_version()) :: boolean
+  def compatible?(%Version{} = otp_version, %Version{} = elixir_version) do
     otp_releases(elixir_version, :version_requirement)
     |> Enum.any?(&Version.match?(otp_version, &1, allow_pre: true))
   end
 
-  def compatible?(elixir_version, otp_version) when is_binary(elixir_version) do
-    elixir_version = to_version(elixir_version)
-    compatible?(elixir_version, otp_version)
+  def compatible?(otp_version, elixir_version) when is_binary(elixir_version) do
+    elixir_version = to_version!(elixir_version)
+    compatible?(otp_version, elixir_version)
   end
 
-  def compatible?(elixir_version, otp_version)
+  def compatible?(otp_version, elixir_version)
       when is_binary(otp_version) or is_integer(otp_version) do
-    otp_version = to_version(otp_version)
-    compatible?(elixir_version, otp_version)
+    otp_version = to_version!(otp_version)
+    compatible?(otp_version, elixir_version)
   end
 
   @doc """
@@ -96,19 +96,19 @@ defmodule BeamMeta.Compatibility do
 
   ## Examples
 
-      iex> BeamMeta.Compatibility.elixir_releases(21)
+      iex> BeamMeta.Compatibility.OtpElixir.elixir_releases(21)
       ["1.6", "1.7", "1.8", "1.9", "1.10", "1.10.3", "1.11", "1.11.4"]
 
-      iex> BeamMeta.Compatibility.elixir_releases("17.1", :key)
+      iex> BeamMeta.Compatibility.OtpElixir.elixir_releases("17.1", :key)
       ["1.0", "1.0.5", "1.1"]
 
-      > BeamMeta.Compatibility.elixir_releases("17.1", :version)
+      > BeamMeta.Compatibility.OtpElixir.elixir_releases("17.1", :version)
       [#Version<1.0.0>, #Version<1.0.5>, #Version<1.1.0>]
 
-      > BeamMeta.Compatibility.elixir_releases("17.1", :version_requirement)
+      > BeamMeta.Compatibility.OtpElixir.elixir_releases("17.1", :version_requirement)
       [#Version.Requirement<~> 1.0.0>, #Version.Requirement<~> 1.0.5-0>, #Version.Requirement<~> 1.1.0-0>]
 
-      iex> BeamMeta.Compatibility.elixir_releases(16)
+      iex> BeamMeta.Compatibility.OtpElixir.elixir_releases(16)
       []
 
   """
@@ -117,7 +117,7 @@ defmodule BeamMeta.Compatibility do
   def elixir_releases(otp_version, return_type \\ :key)
 
   def elixir_releases(%Version{} = otp_version, return_type) when is_atom(return_type) do
-    Enum.reduce(table(), [], fn
+    Enum.reduce(table({:elixir, :otp}), [], fn
       {elixir_key, map}, acc ->
         filter_elixir_releases(otp_version, return_type, elixir_key, map, acc)
     end)
@@ -128,7 +128,7 @@ defmodule BeamMeta.Compatibility do
 
   def elixir_releases(otp_version, return_type)
       when is_binary(otp_version) or is_integer(otp_version) do
-    elixir_releases(to_version(otp_version), return_type)
+    elixir_releases(to_version!(otp_version), return_type)
   end
 
   defp filter_elixir_releases(
@@ -173,37 +173,37 @@ defmodule BeamMeta.Compatibility do
   ## Examples
 
       # MAJOR.MINOR
-      iex> BeamMeta.Compatibility.otp_releases("1.11")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11")
       [21, 22, 23]
 
       # MAJOR.MINOR.PATCH
-      iex> BeamMeta.Compatibility.otp_releases("1.11.0")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.0")
       [21, 22, 23]
 
-      iex> BeamMeta.Compatibility.otp_releases("1.11.2")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.2")
       [21, 22, 23]
 
-      iex> BeamMeta.Compatibility.otp_releases("1.11.4")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.4")
       [21, 22, 23, 24]
 
-      iex> BeamMeta.Compatibility.otp_releases("1.11.4", :key)
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.4", :key)
       [21, 22, 23, 24]
 
-      > BeamMeta.Compatibility.otp_releases("1.11.4", :version)
+      > BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.4", :version)
       [#Version<21.0.0>, #Version<22.0.0>, #Version<23.0.0>, #Version<24.0.0>]
 
-      > BeamMeta.Compatibility.otp_releases("1.11.4", :version_requirement)
+      > BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.4", :version_requirement)
       [#Version.Requirement<~> 21.0>, #Version.Requirement<~> 22.0>, #Version.Requirement<~> 23.0>, #Version.Requirement<~> 24.0>]
 
       # Version do not necessarily need to exist.
       # The results are based on the compaibility table
-      iex> BeamMeta.Compatibility.otp_releases("1.11.999")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.11.999")
       [21, 22, 23, 24]
 
-      iex> BeamMeta.Compatibility.otp_releases("1.99.0")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("1.99.0")
       []
 
-      iex> BeamMeta.Compatibility.otp_releases("2.0")
+      iex> BeamMeta.Compatibility.OtpElixir.otp_releases("2.0")
       []
 
   """
@@ -213,7 +213,7 @@ defmodule BeamMeta.Compatibility do
 
   def otp_releases(%Version{} = elixir_version, return_type)
       when return_type in [:key, :version, :version_requirement] do
-    Enum.reduce(table(), [], fn
+    Enum.reduce(table({:elixir, :otp}), [], fn
       {_elixir_key,
        %{
          version_requirement: elixir_requirement,
@@ -241,51 +241,153 @@ defmodule BeamMeta.Compatibility do
   end
 
   def otp_releases(elixir_version, return_type) when is_binary(elixir_version) do
-    otp_releases(to_version(elixir_version), return_type)
+    otp_releases(to_version!(elixir_version), return_type)
   end
 
-  table =
+  table_elixir_otp =
     BeamLangsMetaData.compatibility({:elixir, :otp})
     |> Enum.into(%{}, fn
       {elixir_version, otp_version} ->
-        elixir_requirement = to_elixir_version_requirement(elixir_version)
+        elixir_requirement = to_version_requirement(elixir_version)
 
         otp_versions =
           Enum.into(otp_version, %{}, fn o_version ->
             {o_version,
              %{
-               version: to_version(o_version),
+               version: to_version!(o_version),
                version_requirement: Version.parse_requirement!("~> #{o_version}.0")
              }}
           end)
 
         {elixir_version,
          %{
-           version: to_version(elixir_version),
+           version: to_version!(elixir_version),
            version_requirement: elixir_requirement,
            otp_versions: otp_versions
          }}
     end)
 
-  @table table
+  @table_elixir_otp table_elixir_otp
+
+  table_otp_elixir =
+    BeamLangsMetaData.compatibility({:otp, :elixir})
+    |> Enum.into(%{}, fn
+      {otp_version, elixir_version} ->
+        otp_requirement = to_version_requirement(otp_version)
+
+        elixir_versions =
+          Enum.into(elixir_version, %{}, fn e_version ->
+            e_version_struct = to_version!(e_version)
+
+            {e_version,
+             %{
+               version: e_version_struct,
+               version_requirement: Version.parse_requirement!("~> #{e_version_struct}")
+             }}
+          end)
+
+        {otp_version,
+         %{
+           version: to_version!(otp_version),
+           version_requirement: otp_requirement,
+           elixir_versions: elixir_versions
+         }}
+    end)
+
+  @table_otp_elixir table_otp_elixir
+
   @doc """
   Returns a map with the compatibility table.
 
   Note that this is not a table that contains every release, but
   a table that represent the MAJOR.MINOR and eventually the MAJOR.MINOR.PATCH releases listed in the page
   [Compatibility between Elixir and Erlang/OTP](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp)
+
+  ## Examples
+
+      > BeamMeta.Compatibility.OtpElixir.table({:otp, :elixir})
+      %{
+        17 => %{
+          elixir_versions: %{
+            "1.0" => %{
+              version: #Version<1.0.0>,
+              version_requirement: #Version.Requirement<~> 1.0.0>
+            },
+            "1.1" => %{
+              version: #Version<1.1.0>,
+              version_requirement: #Version.Requirement<~> 1.1.0>
+            }
+          },
+          version: #Version<17.0.0>,
+          version_requirement: #Version.Requirement<~> 17.0.0-0>
+        },
+        18 => %{
+          elixir_versions: %{
+            "1.0.5" => %{
+              version: #Version<1.0.5>,
+              version_requirement: #Version.Requirement<~> 1.0.5>
+            },
+            "1.1" => %{...},
+            "1.2" => %{...},
+            "1.3" => %{...},
+            "1.4" => %{...},
+            "1.5" => %{...}
+          },
+          version: #Version<18.0.0>,
+          version_requirement: #Version.Requirement<~> 18.0.0-0>
+        },
+        ...
+      %}
+
+      > BeamMeta.Compatibility.OtpElixir.table({:elixir, :otp})
+      %{
+        "1.0" => %{
+          otp_versions: %{
+            17 => %{
+              version: #Version<17.0.0>,
+              version_requirement: #Version.Requirement<~> 17.0>
+            }
+          },
+          version: #Version<1.0.0>,
+          version_requirement: #Version.Requirement<~> 1.0.0>
+        },
+        "1.0.5" => %{...},
+        "1.1" => %{
+          otp_versions: %{
+            17 => %{...},
+            18 => %{...}
+          },
+          version: #Version<1.1.0>,
+          version_requirement: #Version.Requirement<~> 1.1.0-0>
+        },
+        ...
+      }
+
   """
-  @spec table() :: %{
+  @spec table({:elixir, :otp}) :: %{
           BeamMeta.elixir_version_key() => %{
-            version: Version.t(),
-            version_requirement: Version.Requirement.t(),
             otp_versions: %{
               BeamMeta.otp_version_key() => %{
                 version: Version.t(),
                 version_requirement: Version.Requirement.t()
               }
-            }
+            },
+            version: Version.t(),
+            version_requirement: Version.Requirement.t()
           }
         }
-  def table(), do: @table
+  @spec table({:otp, :elixir}) :: %{
+          BeamMeta.otp_version_key() => %{
+            elixir_versions: %{
+              BeamMeta.elixir_version_key() => %{
+                version: Version.t(),
+                version_requirement: Version.Requirement.t()
+              }
+            },
+            version: Version.t(),
+            version_requirement: Version.Requirement.t()
+          }
+        }
+  def table({:elixir, :otp}), do: @table_elixir_otp
+  def table({:otp, :elixir}), do: @table_otp_elixir
 end

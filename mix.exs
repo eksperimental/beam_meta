@@ -99,7 +99,11 @@ defmodule BeamMeta.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
       # {:ex_doc, "~> 0.26", only: :dev, runtime: false}
-      {:ex_doc, git: "https://github.com/elixir-lang/ex_doc.git", only: :dev, runtime: false}
+      {:ex_doc,
+       git: "https://github.com/elixir-lang/ex_doc.git",
+       only: :dev,
+       runtime: false,
+       branch: "main"}
     ]
   end
 
@@ -124,6 +128,9 @@ defmodule BeamMeta.MixProject do
         ]
       ],
       groups_for_modules: [
+        Compatibility: [
+          BeamMeta.Compatibility.OtpElixir
+        ],
         Release: [
           BeamMeta.Release,
           BeamMeta.Release.Elixir,
