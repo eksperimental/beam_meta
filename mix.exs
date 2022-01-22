@@ -3,7 +3,7 @@ defmodule BeamMeta.MixProject do
 
   @app :beam_meta
   @name "BeamMeta"
-  @description "A library to programmatically retrieve information related to the BEAM languages"
+  @description "A library to programmatically retrieve information related to BEAM languages"
   @repo_url "https://github.com/eksperimental/beam_meta"
 
   def project do
