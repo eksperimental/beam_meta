@@ -93,17 +93,17 @@ defmodule BeamMeta.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:beam_langs_meta_data,
-       git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
-      # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
+      # {:beam_langs_meta_data,
+      #  git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
+      {:beam_langs_meta_data, "~> 0.1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
-      # {:ex_doc, "~> 0.26", only: :dev, runtime: false}
-      {:ex_doc,
-       git: "https://github.com/elixir-lang/ex_doc.git",
-       only: :dev,
-       runtime: false,
-       branch: "main"}
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      # {:ex_doc,
+      #  git: "https://github.com/elixir-lang/ex_doc.git",
+      #  only: :dev,
+      #  runtime: false,
+      #  branch: "main"}
     ]
   end
 
