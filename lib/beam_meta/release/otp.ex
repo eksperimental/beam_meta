@@ -36,7 +36,7 @@ defmodule BeamMeta.Release.Otp do
   @typedoc """
   An Erlang/OTP release version.
 
-  For example: `24.2`.
+  For example: `#Version<24.2.0>`.
   """
   @type version :: Version.t()
 
@@ -128,7 +128,7 @@ defmodule BeamMeta.Release.Otp do
   ## Examples
 
       > BeamMeta.Release.Otp.latest_version()
-      "24.2"
+      #Version<24.2.0>
 
   """
   @spec latest_version() :: version
@@ -143,38 +143,56 @@ defmodule BeamMeta.Release.Otp do
 
       > BeamMeta.Release.Otp.release_data()
       [
-        "17.0": %{latest?: false, published_at: nil, version: "17.0"},
-        "17.0.1": %{latest?: false, published_at: nil, version: "17.0.1"},
-        "17.0.2": %{latest?: false, published_at: nil, version: "17.0.2"},
-        "17.1": %{latest?: false, published_at: nil, version: "17.1"},
-        ...,
-        "24.1.7": %{
+         "17.0": %{
           assets: [
             doc_html: %{
               content_type: "application/gzip",
-              name: "otp_doc_html_24.1.7.tar.gz",
-              url: "https://github.com/erlang/otp/releases/download/OTP-24.1.7/otp_doc_html_24.1.7.tar.gz"
+              name: "otp_doc_html_17.0.tar.gz",
+              url: "https://erlang.org/download/otp_doc_html_17.0.tar.gz"
             },
             doc_man: %{
               content_type: "application/gzip",
-              name: "otp_doc_man_24.1.7.tar.gz",
-              url: "https://github.com/erlang/otp/releases/download/OTP-24.1.7/otp_doc_man_24.1.7.tar.gz"
+              name: "otp_doc_man_17.0.tar.gz",
+              url: "https://erlang.org/download/otp_doc_man_17.0.tar.gz"
             },
             win32: %{
               content_type: "application/octet-stream",
-              name: "otp_win32_24.1.7.exe",
-              url: "https://github.com/erlang/otp/releases/download/OTP-24.1.7/otp_win32_24.1.7.exe"
+              name: "otp_win32_17.0.exe",
+              url: "https://erlang.org/download/otp_win32_17.0.exe"
             },
             win64: %{
               content_type: "application/octet-stream",
-              name: "otp_win64_24.1.7.exe",
-              url: "https://github.com/erlang/otp/releases/download/OTP-24.1.7/otp_win64_24.1.7.exe"
+              name: "otp_win64_17.0.exe",
+              url: "https://erlang.org/download/otp_win64_17.0.exe"
             }
+          ],
+          latest?: false,
+          version: #Version<17.0.0>
+        },
+        "17.0.1": %{latest?: false, version: #Version<17.0.1>},
+        "17.0.2": %{latest?: false, version: #Version<17.0.2>},
+        "17.1": %{
+          assets: [
+            doc_html: %{...},
+            doc_man: %{...},
+            win32: %{...},
+            win64: %{...},
+          ],
+          latest?: false,
+          version: #Version<17.1.0>
+        },
+        ...,
+        "24.1.7": %{
+          assets: [
+            doc_html: %{...},
+            doc_man: %{...},
+            win32: %{...},
+            win64: %{...},
           ],
           latest?: false,
           published_at: ~U[2021-11-22 09:04:55Z], 
           url: "https://github.com/erlang/otp/releases/tag/OTP-24.1.7",
-          version: "24.1.7"
+          version: #Version<24.1.7>
         },
         "24.2": %{
           assets: [
@@ -186,7 +204,7 @@ defmodule BeamMeta.Release.Otp do
           latest?: true,
           published_at: ~U[2021-12-15 14:31:36Z],
           url: "https://github.com/erlang/otp/releases/tag/OTP-24.2",
-          version: "24.2"
+          version: #Version<24.2.0>
         }
       ]
 

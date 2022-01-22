@@ -34,7 +34,7 @@ defmodule BeamMeta.Compatibility.OtpElixir do
   @doc """
   Determines whether the given Elang/OTP and Elixir versions are compatible.
 
-  The results are based on the [compatibility table](`table/0`). This function does not check
+  The results are based on the [compatibility table](`table/1`). This function does not check
   that the Elixir and Erlang/OTP actually exists.
 
   `elixir_version` can be a `t:Version.t/0` or a string.
@@ -388,6 +388,7 @@ defmodule BeamMeta.Compatibility.OtpElixir do
             version_requirement: Version.Requirement.t()
           }
         }
+  def table(pair)
   def table({:elixir, :otp}), do: @table_elixir_otp
   def table({:otp, :elixir}), do: @table_otp_elixir
 end
