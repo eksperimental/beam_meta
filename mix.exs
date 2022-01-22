@@ -79,14 +79,7 @@ defmodule BeamMeta.MixProject do
       maintainers: ["Eksperimental"],
       licenses: ["CC0-1.0", "MIT-0", "0BSD"],
       links: %{"GitHub" => @repo_url},
-      files: ~w(
-          lib/
-          LICENSES/
-          priv/
-          .formatter.exs
-          mix.exs
-          README.md
-        )
+      source_url: @repo_url
     ]
   end
 
