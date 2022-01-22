@@ -26,10 +26,10 @@ defmodule BeamMeta.Release.Otp do
             version_key :: atom(),
             %{
               optional(:assets) => BeamMeta.nonempty_keyword(asset, asset_data),
-              latest?: boolean(),
-              published_at: DateTime.t(),
-              url: String.t(),
-              version: version
+              required(:latest?) => boolean(),
+              optional(:published_at) => DateTime.t(),
+              optional(:url) => String.t(),
+              required(:version) => version
             }
           )
 
@@ -68,23 +68,33 @@ defmodule BeamMeta.Release.Otp do
           BeamLangsMetaData.otp_releases() do
       Enum.reduce(releases, [], fn {_version_atom, elem}, acc ->
         if version_string = elem[:name] do
+          assets = build_assets.(elem)
+
+          map = %{
+            version: to_version!(version_string),
+            latest?: latest_version == version_string
+          }
+
           map =
             if published_at = elem[:published_at] do
               {:ok, published_at, 0} = DateTime.from_iso8601(published_at)
-
-              %{
-                assets: build_assets.(elem),
-                url: elem.release_url,
-                version: to_version!(version_string),
-                published_at: published_at,
-                latest?: latest_version == version_string
-              }
+              Map.put(map, :published_at, published_at)
             else
-              %{
-                version: to_version!(version_string),
-                published_at: published_at,
-                latest?: latest_version == version_string
-              }
+              map
+            end
+
+          map =
+            if url = elem[:release_url] do
+              Map.put(map, :url, url)
+            else
+              map
+            end
+
+          map =
+            if assets != [] do
+              Map.put(map, :assets, assets)
+            else
+              map
             end
 
           Keyword.put(acc, String.to_atom(version_string), map)
