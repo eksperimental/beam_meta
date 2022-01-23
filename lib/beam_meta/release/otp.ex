@@ -36,9 +36,21 @@ defmodule BeamMeta.Release.Otp do
   @typedoc """
   An Erlang/OTP release version.
 
-  For example: `#Version<24.2.0>`.
+  For example: `#Version<24.2.0>` or `"24.2"`.
   """
-  @type version :: Version.t()
+  @type version :: Version.t() | String.t()
+
+  @typedoc """
+  A release version requirement.
+
+  It could it be a `t:Version.Requirement.t/0` or a string representation of this one,
+  for example: `#Version.Requirement<"~> 24.0">` or `"~> 1.13"`.
+  """
+  @type version_requirement :: Version.Requirement.t() | String.t()
+
+  # Note that if `term` is a string, it does not check whether it is a valid version requirement.
+  defguardp is_version_requirement(term)
+            when is_struct(term, Version.Requirement) or is_binary(term)
 
   build_assets = fn elem ->
     keys = [:doc_html, :doc_man, :win32, :win64, :readme]
@@ -106,6 +118,8 @@ defmodule BeamMeta.Release.Otp do
     |> Enum.reject(&(&1 == []))
     |> List.flatten()
     |> Enum.sort()
+
+  @release_data release_data
 
   @versions Enum.map(release_data, fn {_k, map} -> to_version!(map[:version]) end)
             |> Enum.sort_by(& &1, :asc)
@@ -210,7 +224,84 @@ defmodule BeamMeta.Release.Otp do
 
   """
   @spec release_data() :: release_data()
-  def release_data(), do: unquote(Macro.escape(release_data))
+  def release_data(), do: @release_data
+
+  @doc """
+  Returns a filtered map from `releases_data/0` that matches the `otp_version_requirement` and `options`.
+
+  `options` are options supported by `Version.match?/3`. Currently the only supported key
+  is `:allow_pre` which accepts `true` or `false` values. Defaults to `true`.
+  Note the currently no prereleases are listed in the `release_data/0`, so this option has no effect.
+
+  See `releases_data/0` for more information.
+
+  ## Examples
+
+      > BeamMeta.Release.Otp.release_data("~> 24.1") 
+      [
+        "24.2": %{
+          assets: [
+            doc_html: %{
+              content_type: "application/gzip",
+              name: "otp_doc_html_24.2.tar.gz",
+              url: "https://github.com/erlang/otp/releases/download/OTP-24.2/otp_doc_html_24.2.tar.gz"
+            },
+            doc_man: %{
+              content_type: "application/gzip",
+              name: "otp_doc_man_24.2.tar.gz",
+              url: "https://github.com/erlang/otp/releases/download/OTP-24.2/otp_doc_man_24.2.tar.gz"
+            },
+            win32: %{
+              content_type: "application/octet-stream",
+              name: "otp_win32_24.2.exe",
+              url: "https://github.com/erlang/otp/releases/download/OTP-24.2/otp_win32_24.2.exe"
+            },
+            win64: %{
+              content_type: "application/octet-stream",
+              name: "otp_win64_24.2.exe",
+              url: "https://github.com/erlang/otp/releases/download/OTP-24.2/otp_win64_24.2.exe"
+            }
+          ],
+          latest?: true,
+          published_at: ~U[2021-12-15 14:31:36Z],
+          url: "https://github.com/erlang/otp/releases/tag/OTP-24.2",
+          version: #Version<24.2.0>
+        },
+        "24.1.7": %{
+          assets: [
+            doc_html: %{...},
+            doc_man: %{...},
+            win32: %{...},
+            win64: %{...},
+          ],
+          latest?: false,
+          published_at: ~U[2021-11-22 09:04:55Z],
+          url: "https://github.com/erlang/otp/releases/tag/OTP-24.1.7",
+          version: #Version<24.1.7>
+        },
+        "24.1.6": %{...},
+        "24.1.5": %{...},
+        "24.1.4": %{...},
+        "24.1.3": %{...},
+        "24.1.2": %{...},
+        "24.1.1": %{...},
+        "24.1": %{...},
+      ]
+
+  """
+  @spec release_data(version_requirement) :: release_data()
+  def release_data(otp_version_requirement, options \\ [])
+      when is_version_requirement(otp_version_requirement) do
+    # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
+    Enum.reduce(release_data(), [], fn
+      {k, map}, acc ->
+        if Version.match?(map.version, otp_version_requirement, options) do
+          Keyword.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+  end
 
   @doc """
   Returns a list with all the Erlang/OTP versions since OTP 17.

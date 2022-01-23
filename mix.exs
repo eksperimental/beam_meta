@@ -91,12 +91,15 @@ defmodule BeamMeta.MixProject do
       {:beam_langs_meta_data, "~> 0.1.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
-      # {:ex_doc,
-      #  git: "https://github.com/elixir-lang/ex_doc.git",
-      #  only: :dev,
-      #  runtime: false,
-      #  branch: "main"}
+      # {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      {
+        :ex_doc,
+        # branch: "main",
+        git: "https://github.com/elixir-lang/ex_doc.git",
+        only: :dev,
+        runtime: false,
+        ref: "b91cffc9724ef25c6a62217c59c927a417caa8d5"
+      }
     ]
   end
 

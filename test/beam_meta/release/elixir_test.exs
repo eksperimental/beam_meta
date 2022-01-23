@@ -42,10 +42,11 @@ defmodule BeamMeta.Release.Elixir.Test do
   end
 
   test "release_data/0" do
-    assert Release.Elixir.release_data() |> Keyword.has_key?(:"1.0.0") == true
-    assert Release.Elixir.release_data() |> Keyword.has_key?(:"1.13.0-rc.1") == true
-    assert Release.Elixir.release_data() |> Keyword.has_key?(:"1.13.0") == true
-    assert Release.Elixir.release_data() |> Enum.count() >= @min_version_count
+    results = Release.Elixir.release_data()
+    assert Keyword.has_key?(results, :"1.0.0") == true
+    assert Keyword.has_key?(results, :"1.13.0-rc.1") == true
+    assert Keyword.has_key?(results, :"1.13.0") == true
+    assert Enum.count(results) >= @min_version_count
   end
 
   test "release_data/1" do

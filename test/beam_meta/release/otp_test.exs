@@ -28,11 +28,23 @@ defmodule BeamMeta.Release.Otp.Test do
   end
 
   test "release_data/0" do
-    assert Release.Otp.release_data() |> get(:first) == "17.0"
-    assert Release.Otp.release_data() |> Keyword.has_key?(:"17.0") == true
-    assert Release.Otp.release_data() |> Keyword.has_key?(:"20.3.8.25") == true
-    assert Release.Otp.release_data() |> Keyword.has_key?(:"20.3.8.27") == false
-    assert Release.Otp.release_data() |> Enum.count() >= @min_version_count
+    results = Release.Otp.release_data()
+    assert get(results, :first) == "17.0"
+    assert Keyword.has_key?(results, :"17.0") == true
+    assert Keyword.has_key?(results, :"20.3.8.25") == true
+    assert Keyword.has_key?(results, :"20.3.8.27") == false
+    assert Enum.count(results) >= @min_version_count
+  end
+
+  test "release_data/1" do
+    results = Release.Otp.release_data("~> 24.1")
+    assert Keyword.has_key?(results, :"24.1.6") == true
+    assert Keyword.has_key?(results, :"24.2") == true
+    assert Keyword.has_key?(results, :"24.0") == false
+
+    assert Release.Otp.release_data("~> 24.1", allow_pre: false)
+           |> Keyword.has_key?(:"24.1.6") ==
+             true
   end
 
   test "versions/0" do

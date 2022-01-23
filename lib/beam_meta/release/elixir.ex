@@ -51,7 +51,7 @@ defmodule BeamMeta.Release.Elixir do
   A release version requirement.
 
   It could it be a `t:Version.Requirement.t/0` or a string representation of this one,
-  for example: `#Version.Requirement<"~> 24.0">` or `"~> 1.13"`.
+  for example: `#Version.Requirement<"~> 1.13">` or `"~> 1.13"`.
   """
   @type version_requirement :: Version.Requirement.t() | String.t()
 
@@ -289,13 +289,12 @@ defmodule BeamMeta.Release.Elixir do
   def release_data(), do: unquote(Macro.escape(release_data))
 
   @doc """
-  Returns a map which contains all the information that we find relevant from releases data 
-  that matches the `elixir_version_requirement`.
+  Returns a filtered map from `releases_data/0` that matches the `elixir_version_requirement` and `options`.
 
-  Includes data from final releases and preseleases starting from Elixir version 1.0.0.
-
-  `options` are options supported by `Version.match?/3`. Currently the only key supported
+  `options` are options supported by `Version.match?/3`. Currently the only supported key
   is `:allow_pre` which accepts `true` or `false` values. Defaults to `true`.
+
+  See `releases_data/0` for more information.
 
   ## Examples
 
