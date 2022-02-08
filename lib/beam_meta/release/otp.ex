@@ -6,9 +6,10 @@ defmodule BeamMeta.Release.Otp do
   """
 
   use BackPort
-  import BeamMeta.Util, only: [to_version!: 1]
+  alias BeamMeta.Util
+  import Util, only: [to_version!: 1]
 
-  @type asset :: :doc_html | :doc_man | :win32 | :win64
+  @type asset :: :doc_html | :doc_man | :readme | :tarball | :win32 | :win64
 
   @type asset_data :: %{
           content_type: mime_type :: String.t(),
@@ -26,10 +27,16 @@ defmodule BeamMeta.Release.Otp do
             version_key :: atom(),
             %{
               optional(:assets) => BeamMeta.nonempty_keyword(asset, asset_data),
+              required(:created_at) => DateTime.t(),
+              optional(:id) => pos_integer,
+              optional(:json_url) => BeamMeta.url(),
               required(:latest?) => boolean(),
+              optional(:prerelease?) => boolean(),
               optional(:published_at) => DateTime.t(),
-              optional(:url) => String.t(),
-              required(:version) => version
+              optional(:tarball_url) => BeamMeta.url(),
+              optional(:url) => BeamMeta.url(),
+              required(:version) => version,
+              optional(:zipball_url) => BeamMeta.url()
             }
           )
 
@@ -48,70 +55,86 @@ defmodule BeamMeta.Release.Otp do
   """
   @type version_requirement :: Version.Requirement.t() | String.t()
 
-  # Note that if `term` is a string, it does not check whether it is a valid version requirement.
-  defguardp is_version_requirement(term)
-            when is_struct(term, Version.Requirement) or is_binary(term)
+  # # Note that if `term` is a string, it does not check whether it is a valid version requirement.
+  # defguardp is_version_requirement(term)
+  #           when is_struct(term, Version.Requirement) or is_binary(term)
+
+  # This is the minimum requirement. We do not retrieve anything prior 17.0
+  @minimal_otp_version_requirement Version.parse_requirement!(">= 17.0.0")
 
   build_assets = fn elem ->
-    keys = [:doc_html, :doc_man, :win32, :win64, :readme]
-
     content_types = %{
       doc_html: "application/gzip",
       doc_man: "application/gzip",
+      readme: "text/plain",
+      tarball: "application/gzip",
       win32: "application/octet-stream",
-      win64: "application/octet-stream",
-      readme: "text/plain"
+      win64: "application/octet-stream"
     }
 
-    for key when is_map_key(elem, key) <- keys do
-      {
-        key,
-        %{
-          content_type: content_types[key],
-          name: Path.basename(elem[key]),
-          url: elem[key]
-        }
-      }
+    for {key, content_type} when is_map_key(elem, key) <- content_types do
+      url = elem[key]
+
+      {key,
+       %{
+         content_type: content_type,
+         name: Path.basename(url),
+         url: url
+       }}
     end
+  end
+
+  put_release_data_entry = fn
+    # Skip
+    map, :assets, [] ->
+      map
+
+    map, :published_at, value when is_binary(value) ->
+      date_time = value |> NaiveDateTime.from_iso8601!() |> DateTime.from_naive!("Etc/UTC")
+      Map.put(map, :published_at, date_time)
+
+    map, key, value when value != nil ->
+      Map.put(map, key, value)
+
+    map, _key, _value ->
+      map
+  end
+
+  trim_tag_name = fn tag_name ->
+    tag_name
+    |> String.trim_leading("OTP-")
+    |> String.trim_leading("OTP_")
   end
 
   release_data =
     for {_major_minor_atom, %{latest: latest_version, releases: releases}} <-
-          BeamLangsMetaData.otp_releases() do
-      Enum.reduce(releases, [], fn {_version_atom, elem}, acc ->
-        if version_string = elem[:name] do
-          assets = build_assets.(elem)
+          :lists.reverse(BeamLangsMetaData.otp_releases()) do
+      Enum.reduce(releases, [], fn {version_atom, elem}, acc ->
+        assets = build_assets.(elem)
 
-          map = %{
-            version: to_version!(version_string),
-            latest?: latest_version == version_string
-          }
+        with tag_name when is_binary(tag_name) <- elem[:tag_name],
+             version_string <- trim_tag_name.(tag_name),
+             version <- to_version!(version_string),
+             true <- Version.match?(version, @minimal_otp_version_requirement),
+             {:ok, created_at, 0} <- DateTime.from_iso8601(elem.created_at) do
+          entry =
+            %{}
+            |> put_release_data_entry.(:assets, assets)
+            |> put_release_data_entry.(:created_at, created_at)
+            |> put_release_data_entry.(:id, elem[:id])
+            |> put_release_data_entry.(:json_url, elem[:url])
+            |> put_release_data_entry.(:prerelease?, String.contains?(version_string, "-"))
+            |> put_release_data_entry.(:tarball_url, elem[:tarball_url])
+            |> put_release_data_entry.(:url, elem[:release_url])
+            |> put_release_data_entry.(:version, version)
+            |> put_release_data_entry.(:zipball_url, elem[:zipball_url])
+            |> put_release_data_entry.(:published_at, elem[:published_at])
+            |> put_release_data_entry.(:version, to_version!(version_string))
+            |> put_release_data_entry.(:latest?, latest_version == version_string)
 
-          map =
-            if published_at = elem[:published_at] do
-              {:ok, published_at, 0} = DateTime.from_iso8601(published_at)
-              Map.put(map, :published_at, published_at)
-            else
-              map
-            end
-
-          map =
-            if url = elem[:release_url] do
-              Map.put(map, :url, url)
-            else
-              map
-            end
-
-          map =
-            if assets != [] do
-              Map.put(map, :assets, assets)
-            else
-              map
-            end
-
-          Keyword.put(acc, String.to_atom(version_string), map)
+          Keyword.put(acc, version_atom, entry)
         else
-          acc
+          _ -> acc
         end
       end)
     end
@@ -121,17 +144,43 @@ defmodule BeamMeta.Release.Otp do
 
   @release_data release_data
 
+  # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
+  release_data_prerelease =
+    Enum.reduce(release_data, [], fn
+      {k, map}, acc ->
+        if map[:prerelease?] == true do
+          Keyword.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+
+  @release_data_prerelease release_data_prerelease
+
+  # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
+  release_data_release =
+    Enum.reduce(release_data, [], fn
+      {k, map}, acc ->
+        if map[:prerelease?] == false do
+          Keyword.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+
+  @release_data_release release_data_release
+
   @versions Enum.map(release_data, fn {_k, map} -> to_version!(map[:version]) end)
             |> Enum.sort_by(& &1, :asc)
 
-  # @prerelease_versions release_data
-  #                      |> Enum.filter(fn {_k, map} -> map.prerelease? end)
-  #                      |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
-  #                      |> Enum.sort_by(& &1, {:asc, Version})
+  @prerelease_versions release_data
+                       |> Enum.filter(fn {_k, map} -> map[:prerelease?] end)
+                       |> Enum.map(fn {_k, map} -> map[:version] end)
+                       |> Enum.sort_by(& &1, {:asc, Version})
 
   @release_versions release_data
-                    # |> Enum.reject(fn {_k, map} -> map.prerelease? end)
-                    |> Enum.map(fn {_k, map} -> Map.get(map, :version) |> to_version!() end)
+                    |> Enum.reject(fn {_k, map} -> map[:prerelease?] end)
+                    |> Enum.map(fn {_k, map} -> to_version!(map[:version]) end)
                     |> Enum.sort_by(& &1, :asc)
 
   @latest_version Enum.max(@release_versions)
@@ -147,6 +196,77 @@ defmodule BeamMeta.Release.Otp do
   """
   @spec latest_version() :: version
   def latest_version(), do: @latest_version
+
+  @doc """
+  Returns a map with all the prereleases since Erlang/OTP 17.
+
+  ## Examples
+
+      > BeamMeta.Release.Otp.prereleases()
+      [
+        "24.0-rc3": %{
+          created_at: ~U[2021-04-21 10:00:17Z],
+          id: 41767908,
+          json_url: "https://api.github.com/repos/erlang/otp/releases/41767908",
+          latest?: false,
+          prerelease?: true,
+          published_at: ~U[2021-04-21 10:31:19Z],
+          tarball_url: "https://api.github.com/repos/erlang/otp/tarball/OTP-24.0-rc3",
+          url: "https://github.com/erlang/otp/releases/tag/OTP-24.0-rc3",
+          version: #Version<24.0.0-rc3>,
+          zipball_url: "https://api.github.com/repos/erlang/otp/zipball/OTP-24.0-rc3"
+        },
+        "24.0-rc2": %{
+          created_at: ~U[2021-03-26 07:38:27Z],
+          id: 40524774,
+          json_url: "https://api.github.com/repos/erlang/otp/releases/40524774",
+          latest?: false,
+          prerelease?: true,
+          published_at: ~U[2021-03-26 08:05:13Z],
+          tarball_url: "https://api.github.com/repos/erlang/otp/tarball/OTP-24.0-rc2",
+          url: "https://github.com/erlang/otp/releases/tag/OTP-24.0-rc2",
+          version: #Version<24.0.0-rc2>,
+          zipball_url: "https://api.github.com/repos/erlang/otp/zipball/OTP-24.0-rc2"
+        },
+        ...
+      ]
+
+
+  """
+  @spec prereleases() :: release_data()
+  def prereleases(), do: @release_data_prerelease
+
+  @doc """
+  Returns a map with only final releases since Erlang/OTP 17.
+
+  ## Examples
+
+      > BeamMeta.Release.Otp.releases()
+      [
+        "24.0-rc3": %{
+          created_at: ~U[2021-04-21 10:00:17Z],
+          id: 41767908,
+          json_url: "https://api.github.com/repos/erlang/otp/releases/41767908",
+          latest?: false,
+          prerelease?: true,
+          published_at: ~U[2021-04-21 10:31:19Z],
+          tarball_url: "https://api.github.com/repos/erlang/otp/tarball/OTP-24.0-rc3",
+          url: "https://github.com/erlang/otp/releases/tag/OTP-24.0-rc3",
+          version: #Version<24.0.0-rc3>,
+          zipball_url: "https://api.github.com/repos/erlang/otp/zipball/OTP-24.0-rc3"
+        },
+        ...
+        "20.3.8.9": %{
+          created_at: ~U[2018-09-11 13:14:17Z],
+          latest?: true,
+          version: #Version<20.3.8-9>
+        },
+        ...
+      ]
+
+  """
+  @spec final_releases() :: release_data()
+  def final_releases(), do: @release_data_release
 
   @doc """
   Returns a map which contains all the information that we find relevant from releases data.
@@ -291,16 +411,30 @@ defmodule BeamMeta.Release.Otp do
   """
   @spec release_data(version_requirement) :: release_data()
   def release_data(otp_version_requirement, options \\ [])
-      when is_version_requirement(otp_version_requirement) do
+
+  def release_data(otp_version_requirement, options) when is_binary(otp_version_requirement) do
+    otp_version_requirement
+    |> Version.parse_requirement!()
+    |> do_release_data(options)
+  end
+
+  def release_data(otp_version_requirement, options)
+      when is_struct(otp_version_requirement, Version.Requirement) do
+    otp_version_requirement
+    |> do_release_data(options)
+  end
+
+  defp do_release_data(otp_version_requirement, options) do
     # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
     Enum.reduce(release_data(), [], fn
       {k, map}, acc ->
         if Version.match?(map.version, otp_version_requirement, options) do
-          Keyword.put(acc, k, map)
+          [{k, map} | acc]
         else
           acc
         end
     end)
+    |> :lists.reverse()
   end
 
   @doc """
@@ -320,6 +454,27 @@ defmodule BeamMeta.Release.Otp do
   def versions(), do: @versions
 
   @doc """
+  Returns a list versions since Erlang/OTP 17, according to `kind`.
+
+  The list contains the versions in the `t:Version.t/0` format, sorted ascendenly.
+
+  `kind` can be:
+  - `:release`
+  - `:prerelease`
+
+  ## Examples
+
+      > BeamMeta.Release.Otp.versions(:release)
+
+      > BeamMeta.Release.Otp.versions(:prerelease)
+
+  """
+  @spec versions(BeamMeta.release_kind()) :: [Version.t()]
+  def versions(kind)
+  def versions(:release), do: @release_versions
+  def versions(:prerelease), do: @prerelease_versions
+
+  @doc """
   Convert an Erlang/OTP version to the original string representation.
 
   ## Examples
@@ -335,12 +490,6 @@ defmodule BeamMeta.Release.Otp do
   """
   @spec to_original_string(Version.t()) :: String.t()
   def to_original_string(%Version{} = version) do
-    version_string = to_string(version)
-
-    if String.match?(version_string, ~R/^\d+\.\d+\.\d+-\d/) do
-      String.replace(version_string, "-", ".", global: false)
-    else
-      version_string
-    end
+    Util.to_original_string(version)
   end
 end

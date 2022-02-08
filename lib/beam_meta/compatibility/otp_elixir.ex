@@ -159,7 +159,7 @@ defmodule BeamMeta.Compatibility.OtpElixir do
   end
 
   @doc """
-  Returns a list of all the Erlang/OTP releases available for the givien Elixir version.
+  Returns a list of all the Erlang/OTP releases available for the given Elixir version.
 
   `elixir_version` can be a `t:Version.t/0` or a string.
 
@@ -261,9 +261,9 @@ defmodule BeamMeta.Compatibility.OtpElixir do
 
         {elixir_version,
          %{
+           otp_versions: otp_versions,
            version: to_version!(elixir_version),
-           version_requirement: elixir_requirement,
-           otp_versions: otp_versions
+           version_requirement: elixir_requirement
          }}
     end)
 
@@ -288,9 +288,9 @@ defmodule BeamMeta.Compatibility.OtpElixir do
 
         {otp_version,
          %{
+           elixir_versions: elixir_versions,
            version: to_version!(otp_version),
-           version_requirement: otp_requirement,
-           elixir_versions: elixir_versions
+           version_requirement: otp_requirement
          }}
     end)
 

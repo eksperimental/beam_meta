@@ -63,13 +63,15 @@ defmodule BeamMeta.MixProject do
 
   defp test_isolated() do
     fn _args ->
-      case System.cmd("mix", ~w[test]) do
-        {_, 0} ->
-          true
+      env = %{"MIX_ENV" => "test"}
 
-        {output, _} ->
+      with {:"test setup", {_, 0}} <- {:"test setup", System.cmd("mix", ~w[setup], env: env)},
+           {:test, {_, 0}} <- {:test, System.cmd("mix", ~w[test], env: env)} do
+        true
+      else
+        {type, {output, _}} ->
           IO.puts(output)
-          raise("Test failed.")
+          raise("#{type} failed.")
       end
     end
   end
@@ -86,20 +88,14 @@ defmodule BeamMeta.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:beam_langs_meta_data,
-      #  git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
-      {:beam_langs_meta_data, "~> 0.1.0"},
+      {:beam_langs_meta_data,
+       git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
+      # {:beam_langs_meta_data, "~> 0.2.0"},
+      # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
-      # {:ex_doc, "~> 0.27", only: :dev, runtime: false}
-      {
-        :ex_doc,
-        # branch: "main",
-        git: "https://github.com/elixir-lang/ex_doc.git",
-        only: :dev,
-        runtime: false,
-        ref: "b91cffc9724ef25c6a62217c59c927a417caa8d5"
-      }
+      {:gradient, github: "esl/gradient", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.28", only: :dev, runtime: false}
     ]
   end
 
@@ -109,6 +105,7 @@ defmodule BeamMeta.MixProject do
       main: @name,
       extras: [
         "README.md": [filename: "readme", title: "Readme"],
+        "announcement.md": [filename: "announcement", title: "Announcement"],
         # "NOTICE": [filename: "notice", title: "Notice"],
         "LICENSES/LICENSE.CC0-1.0.txt": [
           filename: "license_CC0-1.0",

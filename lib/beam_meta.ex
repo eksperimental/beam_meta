@@ -54,4 +54,6 @@ defmodule BeamMeta do
   Whether the release is a prerelease or a final release.
   """
   @type release_kind :: :release | :prerelease
+
+  @type url :: String.t()
 end

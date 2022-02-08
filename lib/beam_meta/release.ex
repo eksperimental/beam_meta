@@ -14,17 +14,17 @@ defmodule BeamMeta.Release do
 
   @elixir_versions elixir_release_data
                    |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
-                   |> Enum.sort_by(& &1, :asc)
+                   |> Enum.sort_by(& &1, {:asc, Version})
 
   @elixir_prerelease_versions elixir_release_data
                               |> Enum.filter(fn {_k, map} -> map.prerelease? end)
                               |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
                               |> Enum.sort_by(& &1, {:asc, Version})
 
-  @elixir_release_versions elixir_release_data
-                           |> Enum.reject(fn {_k, map} -> map.prerelease? end)
-                           |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
-                           |> Enum.sort_by(& &1, {:asc, Version})
+  @elixir_final_release_versions elixir_release_data
+                                 |> Enum.reject(fn {_k, map} -> map.prerelease? end)
+                                 |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
+                                 |> Enum.sort_by(& &1, {:asc, Version})
 
   elixir_versions_to_strings = fn list ->
     for version <- list do
@@ -67,23 +67,25 @@ defmodule BeamMeta.Release do
   ## Examples
 
       iex> version = Version.parse!("1.13.0")
-      ...> BeamMeta.Release.is_elixir_release(version)
+      ...> BeamMeta.Release.is_elixir_final_release(version)
       true
 
-      iex> BeamMeta.Release.is_elixir_release("1.13.0-rc.0")
+      iex> BeamMeta.Release.is_elixir_final_release("1.13.0-rc.0")
       false
 
-      iex> BeamMeta.Release.is_elixir_release("1.11.10")
+      iex> BeamMeta.Release.is_elixir_final_release("1.11.10")
       false
 
   """
-  defguard is_elixir_release(version)
-           when (is_struct(version, Version) and version in @elixir_release_versions) or
+  defguard is_elixir_final_release(version)
+           when (is_struct(version, Version) and version in @elixir_final_release_versions) or
                   (is_binary(version) and
-                     version in unquote(elixir_versions_to_strings.(@elixir_release_versions)))
+                     version in unquote(
+                       elixir_versions_to_strings.(@elixir_final_release_versions)
+                     ))
 
   @doc """
-  Returns `true` if `version` is an existing Elixir version, whether it is a final release or a release candidate.
+  Returns `true` if `version` is an existing Elixir release, whether it is a final release or a release candidate.
   Otherwise it returns `false`.
 
   `version` could be a string, or `Version` struct.

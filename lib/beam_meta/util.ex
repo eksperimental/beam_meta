@@ -1,42 +1,13 @@
 defmodule BeamMeta.Util do
   @moduledoc false
 
+  use BackPort
+
   @spec to_version!(BeamMeta.elixir_version_representation() | non_neg_integer()) :: Version.t()
+  defdelegate to_version!(version), to: BeamLangsMetaData.Helper
 
-  def to_version!(version) when is_integer(version) do
-    Version.parse!("#{version}.0.0")
-  end
-
-  def to_version!(version) when is_binary(version) do
-    case Version.parse(version) do
-      {:ok, version_struct} ->
-        version_struct
-
-      :error ->
-        parse_version!(version)
-    end
-  end
-
-  def to_version!(%Version{} = version) do
-    version
-  end
-
-  defp parse_version!(version) do
-    version =
-      case String.split(version, ".", parts: 3) do
-        [_major] ->
-          "#{version}.0.0"
-
-        [_major, _minor] ->
-          "#{version}.0"
-
-        [major, minor, patch] ->
-          major <> "." <> minor <> "." <> String.replace(patch, ".", "-", global: false)
-      end
-
-    Version.parse!(version)
-  end
-
+  @spec to_version_requirement(Version.t() | String.t() | non_neg_integer()) ::
+          Version.requirement()
   def to_version_requirement(version) when is_integer(version) or is_binary(version) do
     version
     |> to_version!()
@@ -58,5 +29,16 @@ defmodule BeamMeta.Util do
       end
 
     Version.parse_requirement!("~> #{standardized_version}")
+  end
+
+  @spec to_original_string(Version.t()) :: String.t()
+  def to_original_string(%Version{} = version) do
+    version_string = to_string(version)
+
+    if String.match?(version_string, ~R/^\d+\.\d+\.\d+-\d/) do
+      String.replace(version_string, "-", ".", global: false)
+    else
+      version_string
+    end
   end
 end

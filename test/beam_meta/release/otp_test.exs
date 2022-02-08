@@ -4,7 +4,7 @@ defmodule BeamMeta.Release.Otp.Test do
   doctest BeamMeta.Release.Otp
   @min_version_count 334
 
-  alias BeamMeta.Release
+  alias BeamMeta.{Release, Util}
 
   defp mapper({key, _value}) do
     key
@@ -27,6 +27,17 @@ defmodule BeamMeta.Release.Otp.Test do
     assert Release.Otp.latest_version() == Release.Otp.versions() |> List.last()
   end
 
+  test "prereleases/0" do
+    assert Release.Otp.prereleases() |> get(:first) == "18.0-rc1"
+  end
+
+  test "final_releases/0" do
+    assert Release.Otp.final_releases() |> get(:first) == "17.0"
+
+    version = Release.Otp.final_releases() |> get(:last)
+    assert BeamMeta.Util.to_version!(version) == Release.Otp.latest_version()
+  end
+
   test "release_data/0" do
     results = Release.Otp.release_data()
     assert get(results, :first) == "17.0"
@@ -41,7 +52,9 @@ defmodule BeamMeta.Release.Otp.Test do
     assert Keyword.has_key?(results, :"24.1.6") == true
     assert Keyword.has_key?(results, :"24.2") == true
     assert Keyword.has_key?(results, :"24.0") == false
+  end
 
+  test "release_data/1 +" do
     assert Release.Otp.release_data("~> 24.1", allow_pre: false)
            |> Keyword.has_key?(:"24.1.6") ==
              true
@@ -56,5 +69,10 @@ defmodule BeamMeta.Release.Otp.Test do
     assert Version.parse!("23.3.4-10") |> Release.Otp.to_original_string() == "23.3.4.10"
     assert Version.parse!("25.0.0-rc0") |> Release.Otp.to_original_string() == "25.0.0-rc0"
     assert Version.parse!("23.3.4") |> Release.Otp.to_original_string() == "23.3.4"
+
+    assert Util.to_version!("12.34.56.78-rc0") |> Release.Otp.to_original_string() ==
+             "12.34.56.78-rc0"
+
+    "12.34.56-78-rc0"
   end
 end

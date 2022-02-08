@@ -55,9 +55,9 @@ defmodule BeamMeta.Release.Elixir do
   """
   @type version_requirement :: Version.Requirement.t() | String.t()
 
-  # Note that if `term` is a string, it does not check whether it is a valid version requirement.
-  defguardp is_version_requirement(term)
-            when is_struct(term, Version.Requirement) or is_binary(term)
+  # # Note that if `term` is a string, it does not check whether it is a valid version requirement.
+  # defguardp is_version_requirement(term)
+  #           when is_struct(term, Version.Requirement) or is_binary(term)
 
   # This is the minimum requirement. We do not retrieve anything prior 1.0.0
   @minimal_elixir_version_requirement Version.parse_requirement!(">= 1.0.0")
@@ -73,12 +73,20 @@ defmodule BeamMeta.Release.Elixir do
       name: asset.name,
       size: asset.size,
       state: asset.state,
-      url: asset.browser_download_url
+      url: asset.download_url
     }
+  end
+
+  flatten_releases = fn releases ->
+    for {_major_minor, %{latest: _latest, releases: releases_kw}} <- releases,
+        {_version_atom, release_map} <- releases_kw do
+      release_map
+    end
   end
 
   release_data =
     BeamLangsMetaData.elixir_releases()
+    |> flatten_releases.()
     |> Enum.reduce([], fn elem, acc ->
       with tag_name when is_binary(tag_name) <- elem[:tag_name],
            version_string <- String.trim_leading(tag_name, "v"),
@@ -91,10 +99,10 @@ defmodule BeamMeta.Release.Elixir do
           created_at: created_at,
           id: elem.id,
           json_url: elem.url,
-          prerelease?: version.pre != [],
+          prerelease?: elem.prerelease,
           published_at: published_at,
           tarball_url: elem.tarball_url,
-          url: elem.html_url,
+          url: elem.release_url,
           version: version,
           zipball_url: elem.zipball_url
         })
@@ -103,17 +111,45 @@ defmodule BeamMeta.Release.Elixir do
       end
     end)
 
+  @release_data release_data
+
+  # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
+  release_data_prerelease =
+    Enum.reduce(release_data, [], fn
+      {k, map}, acc ->
+        if map[:prerelease?] == true do
+          Keyword.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+
+  @release_data_prerelease release_data_prerelease
+
+  # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
+  release_data_release =
+    Enum.reduce(release_data, [], fn
+      {k, map}, acc ->
+        if map[:prerelease?] == false do
+          Keyword.put(acc, k, map)
+        else
+          acc
+        end
+    end)
+
+  @release_data_release release_data_release
+
   @versions Enum.map(release_data, fn {_k, map} -> Map.get(map, :version) end)
             |> Enum.sort_by(& &1, {:asc, Version})
 
   @prerelease_versions release_data
-                       |> Enum.filter(fn {_k, map} -> map.prerelease? end)
-                       |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
+                       |> Enum.filter(fn {_k, map} -> map[:prerelease?] end)
+                       |> Enum.map(fn {_k, map} -> map[:version] end)
                        |> Enum.sort_by(& &1, {:asc, Version})
 
   @release_versions release_data
-                    |> Enum.reject(fn {_k, map} -> map.prerelease? end)
-                    |> Enum.map(fn {_k, map} -> Map.get(map, :version) end)
+                    |> Enum.reject(fn {_k, map} -> map[:prerelease?] end)
+                    |> Enum.map(fn {_k, map} -> map[:version] end)
                     |> Enum.sort_by(& &1, {:asc, Version})
 
   @latest_version Enum.max(@release_versions, Version)
@@ -170,17 +206,7 @@ defmodule BeamMeta.Release.Elixir do
 
   """
   @spec prereleases() :: release_data()
-  def prereleases() do
-    # TODO: Replace with Map.filter/2 when Elixir v1.13 is exclusively supported
-    Enum.reduce(release_data(), [], fn
-      {k, map}, acc ->
-        if map.prerelease? do
-          Keyword.put(acc, k, map)
-        else
-          acc
-        end
-    end)
-  end
+  def prereleases(), do: @release_data_prerelease
 
   @doc """
   Returns a map with only final releases since Elixir v1.0.0.
@@ -226,18 +252,8 @@ defmodule BeamMeta.Release.Elixir do
         }
 
   """
-  @spec releases() :: release_data()
-  def releases() do
-    # TODO: Replace with Map.reject/2 when Elixir v1.13 is exclusively supported
-    Enum.reduce(release_data(), [], fn
-      {k, map}, acc ->
-        if map.prerelease? do
-          acc
-        else
-          Keyword.put(acc, k, map)
-        end
-    end)
-  end
+  @spec final_releases() :: release_data()
+  def final_releases(), do: @release_data_release
 
   @doc """
   Returns a map which contains all the information that we find relevant from releases data.
@@ -286,7 +302,7 @@ defmodule BeamMeta.Release.Elixir do
 
   """
   @spec release_data() :: release_data()
-  def release_data(), do: unquote(Macro.escape(release_data))
+  def release_data(), do: @release_data
 
   @doc """
   Returns a filtered map from `releases_data/0` that matches the `elixir_version_requirement` and `options`.
@@ -337,9 +353,22 @@ defmodule BeamMeta.Release.Elixir do
       }
 
   """
-  @spec release_data(version_requirement) :: release_data()
+  @spec release_data(version_requirement, keyword) :: release_data()
   def release_data(elixir_version_requirement, options \\ [])
-      when is_version_requirement(elixir_version_requirement) do
+
+  def release_data(elixir_version_requirement, options)
+      when is_binary(elixir_version_requirement) do
+    elixir_version_requirement
+    |> Version.parse_requirement!()
+    |> do_release_data(options)
+  end
+
+  def release_data(elixir_version_requirement, options)
+      when is_struct(elixir_version_requirement, Version.Requirement) do
+    do_release_data(elixir_version_requirement, options)
+  end
+
+  defp do_release_data(elixir_version_requirement, options) do
     # TODO: replace with Map.filter/2 when we require Elixir 1.13 exclusively
     Enum.reduce(release_data(), [], fn
       {k, map}, acc ->

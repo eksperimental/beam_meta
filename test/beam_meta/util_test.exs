@@ -13,8 +13,11 @@ defmodule BeamMeta.Util.Test do
       Util.to_version!(17.0)
     end)
 
+    # Incomplete versions
     assert Util.to_version!("17") == Version.parse!("17.0.0")
     assert Util.to_version!("17.0") == Version.parse!("17.0.0")
+    assert Util.to_version!("17.0-rc2.0") == Version.parse!("17.0.0-rc2.0")
+
     assert Util.to_version!("17.0.0") == Version.parse!("17.0.0")
     assert Util.to_version!("17.0.0-0") == Version.parse!("17.0.0-0")
     assert Util.to_version!("17.0.0.0") == Version.parse!("17.0.0-0")

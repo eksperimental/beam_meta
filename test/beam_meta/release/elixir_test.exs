@@ -34,10 +34,10 @@ defmodule BeamMeta.Release.Elixir.Test do
     assert Release.Elixir.prereleases() |> get(:first) == "1.3.0-rc.0"
   end
 
-  test "releases/0" do
-    assert Release.Elixir.releases() |> get(:first) == "1.0.0"
+  test "final_releases/0" do
+    assert Release.Elixir.final_releases() |> get(:first) == "1.0.0"
 
-    version = Release.Elixir.releases() |> get(:last)
+    version = Release.Elixir.final_releases() |> get(:last)
     assert BeamMeta.Util.to_version!(version) == Release.Elixir.latest_version()
   end
 
