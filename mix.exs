@@ -9,7 +9,7 @@ defmodule BeamMeta.MixProject do
   def project do
     [
       app: @app,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       description: @description,
@@ -88,9 +88,9 @@ defmodule BeamMeta.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:beam_langs_meta_data,
-       git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
-      # {:beam_langs_meta_data, "~> 0.2.0"},
+      # {:beam_langs_meta_data,
+      #  git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
+      {:beam_langs_meta_data, "~> 0.2.0"},
       # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
