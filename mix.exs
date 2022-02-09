@@ -88,9 +88,9 @@ defmodule BeamMeta.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:beam_langs_meta_data,
-       git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
-      # {:beam_langs_meta_data, "~> 0.2.0"},
+      # {:beam_langs_meta_data,
+      #  git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
+      {:beam_langs_meta_data, "~> 0.2.0"},
       # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
