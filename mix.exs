@@ -9,7 +9,7 @@ defmodule BeamMeta.MixProject do
   def project do
     [
       app: @app,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       description: @description,
@@ -90,7 +90,7 @@ defmodule BeamMeta.MixProject do
     [
       # {:beam_langs_meta_data,
       #  git: "https://github.com/eksperimental/beam_langs_meta_data.git", branch: "main"},
-      {:beam_langs_meta_data, "~> 0.2.0"},
+      {:beam_langs_meta_data, "~> 0.2.1"},
       # {:beam_langs_meta_data, path: "../beam_langs_meta_data"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
@@ -105,7 +105,6 @@ defmodule BeamMeta.MixProject do
       main: @name,
       extras: [
         "README.md": [filename: "readme", title: "Readme"],
-        "announcement.md": [filename: "announcement", title: "Announcement"],
         # "NOTICE": [filename: "notice", title: "Notice"],
         "LICENSES/LICENSE.CC0-1.0.txt": [
           filename: "license_CC0-1.0",
